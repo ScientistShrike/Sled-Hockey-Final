@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: d7b116e492148834a9380f679c6cbecd
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 150602
+  packageName: PBR Sports Equipment Megapack
+  packageVersion: 1.8
+  assetPath: Assets/PBR Sports Equipment Megapack/Materials/baseball_bat_aluminum.mat
+  uploadId: 383013

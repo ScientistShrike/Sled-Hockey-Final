@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c2ee3903d42a1fb409c7c68a652e5e7a
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 150602
+  packageName: PBR Sports Equipment Megapack
+  packageVersion: 1.8
+  assetPath: Assets/PBR Sports Equipment Megapack/Materials/basketball_hoop.mat
+  uploadId: 383013

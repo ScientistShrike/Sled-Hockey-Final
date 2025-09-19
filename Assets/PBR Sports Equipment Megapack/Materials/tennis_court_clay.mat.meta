@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c220893e40be3a64082537b607e076f3
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 150602
+  packageName: PBR Sports Equipment Megapack
+  packageVersion: 1.8
+  assetPath: Assets/PBR Sports Equipment Megapack/Materials/tennis_court_clay.mat
+  uploadId: 383013

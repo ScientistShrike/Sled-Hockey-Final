@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b07e91a9179cfe345934acf13ba7369f
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 150602
+  packageName: PBR Sports Equipment Megapack
+  packageVersion: 1.8
+  assetPath: Assets/PBR Sports Equipment Megapack/Materials/soccer_field_lines.mat
+  uploadId: 383013

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: b0bdc5453a77dc34eb9246dc5a1c5050
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 150602
+  packageName: PBR Sports Equipment Megapack
+  packageVersion: 1.8
+  assetPath: Assets/PBR Sports Equipment Megapack/Materials/hockey_puck.mat
+  uploadId: 383013

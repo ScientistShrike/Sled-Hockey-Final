@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 202a495035745f84ba4cf192932fa0c7
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 150602
+  packageName: PBR Sports Equipment Megapack
+  packageVersion: 1.8
+  assetPath: Assets/PBR Sports Equipment Megapack/Materials/soccer_goal_metal.mat
+  uploadId: 383013

@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 179ed6dd32f93ba4e8890f2967bd3faf
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 150602
+  packageName: PBR Sports Equipment Megapack
+  packageVersion: 1.8
+  assetPath: Assets/PBR Sports Equipment Megapack/Materials/air_hockey_paddle.mat
+  uploadId: 383013

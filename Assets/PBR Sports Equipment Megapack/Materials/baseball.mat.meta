@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c45c102b6b65c0948953c701f8ec0fc6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 150602
+  packageName: PBR Sports Equipment Megapack
+  packageVersion: 1.8
+  assetPath: Assets/PBR Sports Equipment Megapack/Materials/baseball.mat
+  uploadId: 383013
