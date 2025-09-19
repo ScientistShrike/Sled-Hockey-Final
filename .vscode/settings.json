@@ -66,5 +66,5 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj"
     },
-    "dotnet.defaultSolution": "Sled-hockey-2.sln"
+    "dotnet.defaultSolution": "Sled-Hockey-Final.sln"
 }
