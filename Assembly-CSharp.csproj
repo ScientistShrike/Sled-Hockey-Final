@@ -59,6 +59,7 @@
     <Compile Include="Assets\Goal Logic\GameSession.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\XRPokeFollowAffordanceFill.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\SetTurnTypeFromPlayerPref.cs" />
+    <Compile Include="Assets\XRStickMovement.cs" />
     <Compile Include="Assets\HockeyPuck highlight.cs" />
     <Compile Include="Assets\PauseManager.cs" />
     <Compile Include="Assets\Goal Logic\PlayerGoalScore.cs" />
@@ -76,6 +77,7 @@
     <Compile Include="Assets\EnableVR.cs" />
     <Compile Include="Assets\PlayerSingleton.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\FadeScreen.cs" />
+    <Compile Include="Assets\PlayerPuckHandler.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\Callout.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\PlayAudioFromAudioManager.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\AutoColliderAlign.cs" />

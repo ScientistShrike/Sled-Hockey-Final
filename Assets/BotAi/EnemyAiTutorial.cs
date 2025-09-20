@@ -11,385 +11,329 @@ public class EnemyAiTutorial : MonoBehaviour
 
     public LayerMask whatIsGround, whatIsPlayer;
 
-    // Patroling
+    [Header("Stamina Settings")]
+    public float minMoveTime = 8f;
+    public float maxMoveTime = 12f;
+    public float restTime = 5f;
+    private float staminaTimer;
+    private enum AiState { Moving, Resting }
+    private AiState currentState = AiState.Moving;
+
+    [Header("Patrol Settings")]
     public Vector3 walkPoint;
     bool walkPointSet;
     public float walkPointRange = 10f;
 
-    // Attacking
+    [Header("Attacking Settings")]
     public float timeBetweenAttacks = 2f;
     bool alreadyAttacked;
-    public GameObject projectile;
     public float meleeRange = 2f;
     public float meleeForce = 20f;
 
-    // States
-    public float sightRange = 10f, attackRange = 3f;
-    public bool playerInSightRange, playerInAttackRange;
+    [Header("Shooting Settings")]
+    [Range(0f, 100f)]
+    public float shotAccuracyPercentage = 75f;
+    public float shotInaccuracyAngle = 15f;
 
-    // AI movement zone restriction
+    [Header("Hesitation Settings")]
+    public float playerPickupHesitation = 2.0f; // How long AI hesitates when player gets the puck
+    private float hesitationTimer = 0f;
+
+    [Header("AI States")]
+    public float sightRange = 10f, attackRange = 3f;
+
+    [Header("Zone Restriction")]
     public Vector3 minBounds = new Vector3(-10, 0, -10);
     public Vector3 maxBounds = new Vector3(10, 0, 10);
 
-    // Puck pushing logic
+    [Header("Puck Logic")]
     public float pushOffset = 1.5f;
-
     public bool hasPuck = false;
-
-    public static List<EnemyAiTutorial> allBots = new List<EnemyAiTutorial>();
-    public List<EnemyAiTutorial> passTargets = new List<EnemyAiTutorial>(); // Only pass to these bots
-
-    public float holdPuckTime = 1.5f; // How long to hold puck before action
+    public float holdPuckTime = 1.5f;
     private float holdTimer = 0f;
-
-    public float puckStopCooldown = 1.0f; // seconds after shot/pass before puck can be stopped again
+    public float puckStopCooldown = 1.0f;
     private float puckStopTimer = 0f;
 
+    [Header("Team Logic")]
+    public static List<EnemyAiTutorial> allBots = new List<EnemyAiTutorial>();
+    public List<EnemyAiTutorial> passTargets = new List<EnemyAiTutorial>();
     public enum Team { TeamA, TeamB }
     public Team botTeam;
+
+    [Header("Player Settings")]
+    public Team playerTeam = Team.TeamA;
+    private static Transform humanPlayerTransform;
 
     private void Awake()
     {
         player = GameObject.Find("hockey_puck").transform;
         agent = GetComponent<NavMeshAgent>();
+        staminaTimer = Random.Range(minMoveTime, maxMoveTime);
+        hesitationTimer = playerPickupHesitation;
+
+        if (humanPlayerTransform == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null) humanPlayerTransform = playerObj.transform;
+        }
     }
 
-    private void OnEnable()
-    {
-        allBots.Add(this);
-    }
+    private void OnEnable() => allBots.Add(this);
+    private void OnDisable() => allBots.Remove(this);
 
-    private void OnDisable()
-    {
-        allBots.Remove(this);
-    }
-
-    // Random movement logic
     private float randomMoveTimer = 0f;
-    private float randomMoveInterval = 3f; // How often to change behavior
+    private float randomMoveInterval = 3f;
     private bool isRandomChasing = false;
 
     private void Update()
     {
-        playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
-        playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
+        HandleStamina();
+        if (currentState == AiState.Resting) return;
 
-        float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+        if (puckStopTimer > 0f) puckStopTimer -= Time.deltaTime;
 
-        // Update cooldown timer
-        if (puckStopTimer > 0f)
-            puckStopTimer -= Time.deltaTime;
-
-        // Check if this bot has the puck
         hasPuck = IsPuckClose();
 
-        // If bot has puck, stop and shoot/pass before moving again
         if (hasPuck)
         {
-            // Freeze movement
-            agent.SetDestination(transform.position);
-
-            // Only stop the puck if cooldown expired
-            if (puckStopTimer <= 0f)
-            {
-                Rigidbody puckRb = player.GetComponent<Rigidbody>();
-                if (puckRb != null)
-                {
-                    puckRb.linearVelocity = Vector3.zero;
-                    puckRb.angularVelocity = Vector3.zero;
-                }
-            }
-
-            holdTimer += Time.deltaTime;
-
-            // Only allow shooting/passing after hold time
-            if (holdTimer >= holdPuckTime && !alreadyAttacked)
-            {
-                TryPassToBetterBot();
-                TryShootAtGoal();
-                holdTimer = 0f; // Reset after action
-            }
-
-            // Return early so no other movement logic runs
+            HandlePuckPossession();
             return;
         }
-        else
+
+        HandleTeamMovement();
+    }
+
+    private void HandleStamina()
+    {
+        staminaTimer -= Time.deltaTime;
+        if (currentState == AiState.Moving && staminaTimer <= 0f)
         {
-            holdTimer = 0f; // Reset if puck lost
+            currentState = AiState.Resting;
+            staminaTimer = restTime;
+            agent.isStopped = true;
+        }
+        else if (currentState == AiState.Resting && staminaTimer <= 0f)
+        {
+            currentState = AiState.Moving;
+            staminaTimer = Random.Range(minMoveTime, maxMoveTime);
+            agent.isStopped = false;
+        }
+    }
+
+    private void HandlePuckPossession()
+    {
+        agent.SetDestination(transform.position);
+
+        if (puckStopTimer <= 0f)
+        {
+            Rigidbody puckRb = player.GetComponent<Rigidbody>();
+            if (puckRb != null) { puckRb.linearVelocity = puckRb.angularVelocity = Vector3.zero; }
         }
 
-        // Check if any bot has the puck
-        bool puckIsOwned = AnyBotHasPuck();
-        EnemyAiTutorial teammateWithPuck = GetTeammateWithPuck();
+        holdTimer += Time.deltaTime;
 
-        if (puckIsOwned)
+        if (holdTimer >= holdPuckTime && !alreadyAttacked)
         {
-            // If a teammate has the puck, keep distance from puck
-            if (teammateWithPuck != null)
+            if (!TryPass()) // If no better pass option is available
             {
-                float minTeammateDistance = 4f; // Minimum distance to keep from puck
-                float distToPuck = Vector3.Distance(transform.position, player.position);
-                if (distToPuck < minTeammateDistance)
-                {
-                    // Move away from puck
-                    Vector3 awayDir = (transform.position - player.position).normalized;
-                    Vector3 targetPos = transform.position + awayDir * minTeammateDistance;
-                    targetPos = ClampToBounds(targetPos);
-                    agent.SetDestination(targetPos);
-                }
-                else
-                {
-                    Patroling();
-                }
+                TryShootAtGoal(); // Then try to shoot
+            }
+            holdTimer = 0f;
+        }
+    }
+
+    private void HandleTeamMovement()
+    {
+        // --- Offensive Logic: Check if my team (AI or human) has the puck ---
+        EnemyAiTutorial aiTeammateWithPuck = GetTeammateWithPuck();
+        bool humanTeammateHasPuck = (PlayerPuckHandler.Instance != null && PlayerPuckHandler.Instance.hasPuck && this.botTeam == playerTeam);
+
+        if (aiTeammateWithPuck != null || humanTeammateHasPuck)
+        {
+            GetOpenPosition();
+            return;
+        }
+
+        // --- Defensive Logic ---
+        bool humanOpponentHasPuck = (PlayerPuckHandler.Instance != null && PlayerPuckHandler.Instance.hasPuck && this.botTeam != playerTeam);
+
+        // If human opponent has the puck, check if we should hesitate
+        if (humanOpponentHasPuck)
+        {
+            if (hesitationTimer > 0)
+            {
+                hesitationTimer -= Time.deltaTime;
+                Patroling(); // Hesitate by patrolling randomly
+                return;      // Skip the rest of the logic for this frame
+            }
+        }
+        else
+        {
+            // If player doesn't have puck, reset our hesitation timer so we're ready for their next pickup
+            hesitationTimer = playerPickupHesitation;
+        }
+
+        // Check if an AI opponent has the puck
+        EnemyAiTutorial aiOpponentWithPuck = GetEnemyWithPuck();
+
+        Transform puckCarrier = null;
+        if (aiOpponentWithPuck != null) puckCarrier = aiOpponentWithPuck.transform;
+        else if (humanOpponentHasPuck) puckCarrier = PlayerPuckHandler.Instance.transform;
+
+        if (puckCarrier != null)
+        {
+            // An opponent has the puck. Decide whether to chase them or patrol.
+            randomMoveTimer += Time.deltaTime;
+            if (randomMoveTimer >= randomMoveInterval)
+            {
+                isRandomChasing = Random.value > 0.5f;
+                randomMoveTimer = 0f;
+                randomMoveInterval = Random.Range(2f, 5f);
+            }
+
+            if (isRandomChasing)
+            {
+                agent.SetDestination(puckCarrier.position);
             }
             else
             {
-                // Randomize movement every interval
-                randomMoveTimer += Time.deltaTime;
-                if (randomMoveTimer >= randomMoveInterval)
-                {
-                    // 50% chance to chase puck, 50% to patrol
-                    isRandomChasing = Random.value > 0.5f;
-                    randomMoveTimer = 0f;
-                    randomMoveInterval = Random.Range(2f, 5f);
-                }
-
-                if (isRandomChasing)
-                    ChasePlayer();
-                else
-                    Patroling();
+                Patroling();
             }
         }
         else
         {
-            // If no one has the puck, always chase it
-            ChasePlayer();
+            // --- Loose Puck Logic ---
+            // No one has the puck, so everyone should chase it.
+            ChasePuck();
         }
-
-        // Remove or comment out the old state logic below if you want only random behavior:
-        /*
-        if (!playerInSightRange && !playerInAttackRange)
-            Patroling();
-        else if (playerInSightRange && !playerInAttackRange)
-            ChasePlayer();
-        else if (playerInAttackRange && playerInSightRange)
-        {
-            if (distanceToPlayer <= meleeRange)
-                MeleeAttack();
-            else
-                AttackPlayer();
-        }
-        */
     }
 
-    // Helper to check if puck is close enough to be considered "owned"
-    private bool IsPuckClose()
+    private bool TryPass()
     {
-        return Vector3.Distance(transform.position, player.position) < meleeRange;
-    }
+        if (IsEnemyTooClose()) return false;
 
-    private bool IsEnemyTooClose(float dangerRadius = 4f)
-    {
-        foreach (var bot in allBots)
+        Transform bestTarget = null;
+        float bestScore = Vector3.Distance(transform.position, goal.position);
+
+        // 1. Evaluate AI teammates
+        foreach (var bot in passTargets)
         {
-            if (bot == this) continue;
-            if (bot.botTeam != this.botTeam)
+            if (bot == this || bot.botTeam != this.botTeam) continue;
+            float botScore = Vector3.Distance(bot.transform.position, goal.position);
+            if (botScore < bestScore)
             {
-                float dist = Vector3.Distance(transform.position, bot.transform.position);
-                if (dist < dangerRadius)
-                    return true;
+                bestScore = botScore;
+                bestTarget = bot.transform;
             }
         }
+
+        // 2. Evaluate human player
+        if (this.botTeam == playerTeam && humanPlayerTransform != null)
+        {
+            float playerScore = Vector3.Distance(humanPlayerTransform.position, goal.position);
+            if (playerScore < bestScore)
+            {
+                bestScore = playerScore;
+                bestTarget = humanPlayerTransform;
+            }
+        }
+
+        // 3. If a better target was found, pass to them
+        if (bestTarget != null)
+        {
+            PassPuckTo(bestTarget);
+            return true;
+        }
+
         return false;
     }
 
-    // Find the best bot to pass to and pass the puck
-    private void TryPassToBetterBot()
+    private void GetOpenPosition()
     {
-        // If enemy is too close, don't pass, try to get closer to goal
-        if (IsEnemyTooClose())
-        {
-            // Move toward the goal instead of passing
-            Vector3 moveTarget = goal.position;
-            moveTarget.y = transform.position.y;
-            agent.SetDestination(moveTarget);
-            return;
-        }
-
-        EnemyAiTutorial bestBot = null;
-        float bestScore = float.MaxValue;
-
-        foreach (var bot in passTargets) // Only consider allowed targets
-        {
-            if (bot == this) continue;
-            if (bot.botTeam != this.botTeam) continue; // Only pass to allies
-
-            // Score: distance to goal minus distance to puck (lower is better)
-            float score = Vector3.Distance(bot.transform.position, goal.position)
-                        - Vector3.Distance(bot.transform.position, player.position);
-
-            // Optional: Add more logic (e.g., line of sight, not obstructed)
-            if (score < bestScore)
-            {
-                bestScore = score;
-                bestBot = bot;
-            }
-        }
-
-        // If another bot is better positioned, pass the puck
-        if (bestBot != null && bestScore < Vector3.Distance(transform.position, goal.position))
-        {
-            PassPuckToBot(bestBot);
-        }
+        float offensiveZoneStart = (minBounds.z + maxBounds.z) / 2f;
+        float randomZ = Random.Range(offensiveZoneStart, maxBounds.z);
+        float randomX = Random.Range(minBounds.x, maxBounds.x);
+        Vector3 openPos = new Vector3(randomX, transform.position.y, randomZ);
+        agent.SetDestination(ClampToBounds(openPos));
     }
 
-    // Pass the puck by applying force toward the target bot
-    private void PassPuckToBot(EnemyAiTutorial targetBot)
+    private void TryShootAtGoal()
+    {
+        if (alreadyAttacked) return;
+        Rigidbody puckRb = player.GetComponent<Rigidbody>();
+        if (puckRb == null) return;
+
+        Vector3 perfectDirection = (goal.position - player.position).normalized;
+        Vector3 finalDirection = perfectDirection;
+
+        if (Random.Range(0f, 100f) > shotAccuracyPercentage)
+        {
+            Quaternion randomRotation = Quaternion.Euler(0, Random.Range(-shotInaccuracyAngle, shotInaccuracyAngle), 0);
+            finalDirection = randomRotation * perfectDirection;
+        }
+
+        puckRb.AddForce(finalDirection * meleeForce, ForceMode.Impulse);
+        PostAttackCooldown();
+    }
+
+    private void PassPuckTo(Transform target)
     {
         Rigidbody puckRb = player.GetComponent<Rigidbody>();
-        if (puckRb != null)
-        {
-            Vector3 direction = (targetBot.transform.position - player.position).normalized;
-            puckRb.AddForce(direction * meleeForce, ForceMode.Impulse);
-            alreadyAttacked = true;
-            puckStopTimer = puckStopCooldown; // Start cooldown
-            Invoke(nameof(ResetAttack), timeBetweenAttacks);
-        }
+        if (puckRb == null) return;
+
+        Vector3 direction = (target.position - player.position).normalized;
+        puckRb.AddForce(direction * meleeForce, ForceMode.Impulse);
+        PostAttackCooldown();
+    }
+
+    private void PostAttackCooldown()
+    {
+        alreadyAttacked = true;
+        puckStopTimer = puckStopCooldown;
+        Invoke(nameof(ResetAttack), timeBetweenAttacks);
+    }
+
+    private void ChasePuck()
+    {
+        Vector3 puckPosition = player.position;
+        Vector3 goalDirection = (goal.position - puckPosition).normalized;
+        Vector3 targetPosition = puckPosition - goalDirection * pushOffset;
+        agent.SetDestination(ClampToBounds(targetPosition));
     }
 
     private void Patroling()
     {
-        if (!walkPointSet)
-            SearchWalkPoint();
-
-        if (walkPointSet)
+        if (!walkPointSet || Vector3.Distance(transform.position, walkPoint) < 1f)
         {
-            Vector3 clamped = ClampToBounds(walkPoint);
-            agent.SetDestination(clamped);
+            float randomZ = Random.Range(-walkPointRange, walkPointRange);
+            float randomX = Random.Range(-walkPointRange, walkPointRange);
+            walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
+            if (Physics.Raycast(walkPoint, -transform.up, 2f, whatIsGround)) { walkPointSet = true; }
         }
-
-        Vector3 distanceToWalkPoint = transform.position - walkPoint;
-
-        if (distanceToWalkPoint.magnitude < 1f)
-            walkPointSet = false;
+        if (walkPointSet) agent.SetDestination(ClampToBounds(walkPoint));
     }
 
-    private void SearchWalkPoint()
-    {
-        float randomZ = Random.Range(-walkPointRange, walkPointRange);
-        float randomX = Random.Range(-walkPointRange, walkPointRange);
+    // --- Helper Methods ---
+    private bool IsPuckClose() => Vector3.Distance(transform.position, player.position) < meleeRange;
+    private bool IsEnemyTooClose(float radius = 4f) => allBots.Any(bot => bot != this && bot.botTeam != botTeam && Vector3.Distance(transform.position, bot.transform.position) < radius);
+    private void ResetAttack() => alreadyAttacked = false;
+    private Vector3 ClampToBounds(Vector3 pos) => new Vector3(Mathf.Clamp(pos.x, minBounds.x, maxBounds.x), pos.y, Mathf.Clamp(pos.z, minBounds.z, maxBounds.z));
+    private static bool AnyBotHasPuck() => allBots.Any(bot => bot.hasPuck);
+    private EnemyAiTutorial GetTeammateWithPuck() => allBots.FirstOrDefault(bot => bot != this && bot.botTeam == botTeam && bot.hasPuck);
+    private EnemyAiTutorial GetEnemyWithPuck() => allBots.FirstOrDefault(bot => bot.botTeam != botTeam && bot.hasPuck);
 
-        walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
-
-        if (Physics.Raycast(walkPoint, -transform.up, 2f, whatIsGround))
-            walkPointSet = true;
-    }
-
-    private void ChasePlayer()
-    {
-        Vector3 puckPosition = player.position;
-        Vector3 goalDirection = (goal.position - puckPosition).normalized;
-
-        Vector3 targetPosition = puckPosition - goalDirection * pushOffset;
-        targetPosition.y = transform.position.y;
-
-        Vector3 clamped = ClampToBounds(targetPosition);
-        agent.SetDestination(clamped);
-    }
-
-    private void AttackPlayer()
-    {
-        agent.SetDestination(transform.position);
-        transform.LookAt(player);
-
-        if (!alreadyAttacked)
-        {
-            Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
-            rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
-            rb.AddForce(transform.up * 2f, ForceMode.Impulse);
-
-            alreadyAttacked = true;
-            Invoke(nameof(ResetAttack), timeBetweenAttacks);
-        }
-    }
-
-    private void MeleeAttack()
-    {
-        agent.SetDestination(transform.position);
-        transform.LookAt(player);
-
-        // Only hit the puck if NOT holding it (not the owner)
-        if (!alreadyAttacked && !hasPuck)
-        {
-            Rigidbody puckRb = player.GetComponent<Rigidbody>();
-            if (puckRb != null)
-            {
-                Vector3 direction = (player.position - transform.position).normalized;
-                puckRb.AddForce(direction * meleeForce, ForceMode.Impulse);
-            }
-
-            alreadyAttacked = true;
-            Invoke(nameof(ResetAttack), timeBetweenAttacks);
-        }
-    }
-
-    private void ResetAttack()
-    {
-        alreadyAttacked = false;
-    }
-
-    private Vector3 ClampToBounds(Vector3 position)
-    {
-        return new Vector3(
-            Mathf.Clamp(position.x, minBounds.x, maxBounds.x),
-            position.y,
-            Mathf.Clamp(position.z, minBounds.z, maxBounds.z)
-        );
-    }
-
+    // --- Gizmos ---
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, attackRange);
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, sightRange);
+        Gizmos.color = Color.red; Gizmos.DrawWireSphere(transform.position, attackRange);
+        Gizmos.color = Color.yellow; Gizmos.DrawWireSphere(transform.position, sightRange);
     }
-
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.cyan;
         Vector3 center = (minBounds + maxBounds) / 2f;
         Vector3 size = maxBounds - minBounds;
         Gizmos.DrawWireCube(center, size);
-    }
-
-    // Add this method to shoot at the goal if no pass is made
-    private void TryShootAtGoal()
-    {
-        if (!alreadyAttacked && hasPuck)
-        {
-            Rigidbody puckRb = player.GetComponent<Rigidbody>();
-            if (puckRb != null)
-            {
-                // Shoot directly toward the goal
-                Vector3 direction = (goal.position - player.position).normalized;
-                puckRb.AddForce(direction * meleeForce, ForceMode.Impulse);
-
-                alreadyAttacked = true;
-                puckStopTimer = puckStopCooldown; // Start cooldown
-                Invoke(nameof(ResetAttack), timeBetweenAttacks);
-            }
-        }
-    }
-
-    private static bool AnyBotHasPuck()
-    {
-        return allBots.Any(bot => bot.hasPuck);
-    }
-
-    private EnemyAiTutorial GetTeammateWithPuck()
-    {
-        return allBots.FirstOrDefault(bot => bot != this && bot.botTeam == this.botTeam && bot.hasPuck);
     }
 }
 
