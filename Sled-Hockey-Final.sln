@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{F2060093-499C-10C4-5517-B43B4FE17F66}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.XR.Interaction.Toolkit.Samples.Hands", "Unity.XR.Interaction.Toolkit.Samples.Hands.csproj", "{6E0C7780-0CB4-AB17-852A-B00C44810781}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NavMeshComponentsExamples", "NavMeshComponentsExamples.csproj", "{8EC3D017-8A28-3433-195F-0BFADB2A37E2}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "Assembly-CSharp.csproj", "{F2060093-499C-10C4-5517-B43B4FE17F66}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.XR.Interaction.Toolkit.Samples.StarterAssets", "Unity.XR.Interaction.Toolkit.Samples.StarterAssets.csproj", "{C22D4752-B299-A225-D101-2700219F3B71}"
 EndProject
@@ -31,6 +31,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F2060093-499C-10C4-5517-B43B4FE17F66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2060093-499C-10C4-5517-B43B4FE17F66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2060093-499C-10C4-5517-B43B4FE17F66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2060093-499C-10C4-5517-B43B4FE17F66}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6E0C7780-0CB4-AB17-852A-B00C44810781}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6E0C7780-0CB4-AB17-852A-B00C44810781}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E0C7780-0CB4-AB17-852A-B00C44810781}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,10 +43,6 @@ Global
 		{8EC3D017-8A28-3433-195F-0BFADB2A37E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8EC3D017-8A28-3433-195F-0BFADB2A37E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8EC3D017-8A28-3433-195F-0BFADB2A37E2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F2060093-499C-10C4-5517-B43B4FE17F66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F2060093-499C-10C4-5517-B43B4FE17F66}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F2060093-499C-10C4-5517-B43B4FE17F66}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F2060093-499C-10C4-5517-B43B4FE17F66}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C22D4752-B299-A225-D101-2700219F3B71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C22D4752-B299-A225-D101-2700219F3B71}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C22D4752-B299-A225-D101-2700219F3B71}.Release|Any CPU.ActiveCfg = Release|Any CPU

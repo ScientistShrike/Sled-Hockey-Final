@@ -19,6 +19,7 @@ public class PauseManager : MonoBehaviour
     public InputActionReference pauseAction;
 
     private bool isPaused = false;
+    private PauseAndOptionsMenu pauseAndOptionsMenu;
 
     private void Awake()
     {
@@ -33,6 +34,9 @@ public class PauseManager : MonoBehaviour
         {
             Debug.LogError("Pause Menu is not assigned in the PauseManager.", this);
         }
+
+        // Find PauseAndOptionsMenu if it exists
+        pauseAndOptionsMenu = FindFirstObjectByType<PauseAndOptionsMenu>();
     }
 
     private void OnEnable()
@@ -57,7 +61,25 @@ public class PauseManager : MonoBehaviour
 
     private void OnPausePerformed(InputAction.CallbackContext context)
     {
-        TogglePause();
+        // If PauseAndOptionsMenu is handling pause, delegate to it
+        if (pauseAndOptionsMenu != null)
+        {
+            if (pauseAndOptionsMenu.IsPaused())
+            {
+                pauseAndOptionsMenu.ClosePauseMenu();
+            }
+            else
+            {
+                pauseAndOptionsMenu.OpenPauseMenu();
+            }
+            Debug.Log("PauseManager: Delegated pause to PauseAndOptionsMenu");
+        }
+        else
+        {
+            // Fallback to regular toggle if PauseAndOptionsMenu doesn't exist
+            Debug.Log("PauseManager: PauseAndOptionsMenu not found, using fallback TogglePause");
+            TogglePause();
+        }
     }
 
     public void TogglePause()
@@ -81,12 +103,43 @@ public class PauseManager : MonoBehaviour
 
     public void ResumeGame()
     {
+        Debug.Log("PauseManager.ResumeGame() called");
+        
+        // If PauseAndOptionsMenu exists, delegate to it
+        if (pauseAndOptionsMenu != null)
+        {
+            pauseAndOptionsMenu.ClosePauseMenu();
+            Debug.Log("PauseManager: Delegated resume to PauseAndOptionsMenu");
+            return;
+        }
+
+        // Fallback to our own resume logic
         if (!isPaused) return;
 
         isPaused = false;
         if (pauseMenu != null) pauseMenu.SetActive(false);
         if (settingsMenu != null) settingsMenu.SetActive(false); // Also hide settings on resume
         Time.timeScale = 1f;
+
+        // Safety: Re-enable player movement in case it was disabled
+        try
+        {
+            PlayerPuckHandler puckHandler = FindFirstObjectByType<PlayerPuckHandler>();
+            if (puckHandler != null && !puckHandler.hasPuck)
+            {
+                XRStickMovement movement = puckHandler.playerMovement;
+                if (movement != null && !movement.enabled)
+                {
+                    movement.enabled = true;
+                    Debug.Log("PauseManager: Re-enabled XRStickMovement on resume");
+                }
+            }
+        }
+        catch
+        {
+            // Fallback if FindFirstObjectByType is not available in this Unity version
+            Debug.LogWarning("Could not re-enable movement after pause");
+        }
     }
 
     // Call this from your Settings button
@@ -123,3 +176,4 @@ public class PauseManager : MonoBehaviour
         SceneManager.LoadScene(mainMenuSceneName);
     }
 }
+

@@ -3,14 +3,39 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
+    [Header("Menu Panels")]
+    public GameObject mainMenuPanel;
+    public GameObject optionsMenuPanel;
+
+    void Start()
+    {
+        if (mainMenuPanel != null)
+            mainMenuPanel.SetActive(true);
+        if (optionsMenuPanel != null)
+            optionsMenuPanel.SetActive(false);
+    }
+
     public void PlayGame()
     {
-        // Replace with your actual scene index or name
-        SceneManager.LoadScene(1); 
+        SceneManager.LoadScene(1);
+    }
+
+    public void OpenOptions()
+    {
+        OptionsManager.OpenOptionsFromMain(mainMenuPanel, optionsMenuPanel);
+    }
+
+    public void CloseOptions()
+    {
+        OptionsManager.CloseOptionsForMain(mainMenuPanel, optionsMenuPanel);
     }
 
     public void QuitGame()
     {
-        Application.Quit();
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 }

@@ -272,6 +272,6 @@ public class ScoreManager : MonoBehaviour
         }
 
         // Finally, pause the game after the UI has been set up.
-        Time.timeScale = 0.0001f;
+        Time.timeScale = 0f;
     }
 }

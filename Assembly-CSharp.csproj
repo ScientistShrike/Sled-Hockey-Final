@@ -48,6 +48,7 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\6000.0.53f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.UIToolkit.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\MenuScripts\SettingsMenu.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\PermissionsManager.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\VideoPlayerRenderTexture.cs" />
     <Compile Include="Assets\UIRayActivator.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="Assets\VRTemplateAssets\Scripts\BooleanToggleVisualsController.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\RayAttachModifier.cs" />
     <Compile Include="Assets\Goal Logic\GameSession.cs" />
+    <Compile Include="Assets\HockeyStickController.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\XRPokeFollowAffordanceFill.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\SetTurnTypeFromPlayerPref.cs" />
     <Compile Include="Assets\XRStickMovement.cs" />
@@ -64,6 +66,7 @@
     <Compile Include="Assets\PauseManager.cs" />
     <Compile Include="Assets\Goal Logic\PlayerGoalScore.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\UIAudio.cs" />
+    <Compile Include="Assets\StickTipCollision.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\BezierCurve.cs" />
     <Compile Include="Assets\MenuScripts\MainMenu.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\LaunchProjectile.cs" />
@@ -76,13 +79,17 @@
     <Compile Include="Assets\GameOverMenu.cs" />
     <Compile Include="Assets\EnableVR.cs" />
     <Compile Include="Assets\PlayerSingleton.cs" />
+    <Compile Include="Assets\MenuScripts\OptionsManager.cs" />
+    <Compile Include="Assets\MenuScripts\SettingsSyncHelper.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\FadeScreen.cs" />
     <Compile Include="Assets\PlayerPuckHandler.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\Callout.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\PlayAudioFromAudioManager.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\AutoColliderAlign.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\CalloutGazeController.cs" />
+    <Compile Include="Assets\MenuScripts\PauseAndOptionsMenu.cs" />
     <Compile Include="Assets\Player\SnapToGround.cs" />
+    <Compile Include="Assets\MenuScripts\GameSettings.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\SceneTransitionManager.cs" />
     <Compile Include="Assets\Player\PlayerGroundSpawner.cs" />
     <Compile Include="Assets\FaceCamera.cs" />
@@ -1294,6 +1301,10 @@
       <HintPath>Library\ScriptAssemblies\Unity.TestTools.CodeCoverage.Editor.OpenCover.Mono.Reflection.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Unity.Postprocessing.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.Postprocessing.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="Unity.XR.Management">
       <HintPath>Library\ScriptAssemblies\Unity.XR.Management.dll</HintPath>
       <Private>False</Private>
@@ -1336,6 +1347,14 @@
     </Reference>
     <Reference Include="Unity.XR.Interaction.Toolkit.Analytics.Editor">
       <HintPath>Library\ScriptAssemblies\Unity.XR.Interaction.Toolkit.Analytics.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.2D.Sprite.Editor">
+      <HintPath>Library\ScriptAssemblies\Unity.2D.Sprite.Editor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Unity.Postprocessing.Runtime">
+      <HintPath>Library\ScriptAssemblies\Unity.Postprocessing.Runtime.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
