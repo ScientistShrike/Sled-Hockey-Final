@@ -74,6 +74,7 @@
     <Compile Include="Assets\RandomStuffThatsNotMine\AudioManager.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\GameStartMenu.cs" />
     <Compile Include="Assets\MenuScripts\JoystickMenuNavigation.cs" />
+    <Compile Include="Assets\LockerRoom\Saves\Fly.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\DestroyObject.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\VideoTimeScrubControl.cs" />
     <Compile Include="Assets\GameOverMenu.cs" />
