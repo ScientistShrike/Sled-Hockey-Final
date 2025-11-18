@@ -486,8 +486,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Project\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 8
-    y: 630
+    x: 0
+    y: 567
     width: 1368
     height: 348
   m_SerializedDataModeController:
@@ -531,7 +531,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 120}
     m_SelectedIDs: 3abf0000
     m_LastClickedID: 48954
-    m_ExpandedIDs: 000000006cbe000000ca9a3bffffff7f
+    m_ExpandedIDs: 00000000a0bc0000a2bc0000a4bc0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -560,7 +560,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 000000006cbe0000
+    m_ExpandedIDs: 00000000a0bc0000a2bc0000a4bc0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -639,8 +639,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Inspector\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 1377
-    y: 87
+    x: 1370
+    y: 24
     width: 534
     height: 891
   m_SerializedDataModeController:
@@ -688,8 +688,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Hierarchy\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 8
-    y: 87
+    x: 0
+    y: 24
     width: 482
     height: 517
   m_SerializedDataModeController:
@@ -706,7 +706,7 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: d4a70000
+      m_SelectedIDs: 
       m_LastClickedID: 0
       m_ExpandedIDs: 96b0feff46c2feff9ed8ffff58ebffff
       m_RenameOverlay:
@@ -754,8 +754,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Scene\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 491
-    y: 87
+    x: 484
+    y: 24
     width: 884
     height: 517
   m_SerializedDataModeController:
@@ -1228,7 +1228,7 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 21.277563, y: -17.27702, z: 38.984234}
+    m_Target: {x: -0.5860721, y: 0.92910045, z: -0.40677145}
     speed: 2
     m_Value: {x: 21.277563, y: -17.27702, z: 38.984234}
   m_RenderMode: 0
@@ -1239,7 +1239,7 @@ MonoBehaviour:
   m_ValidateTrueMetals: 0
   m_DoValidateTrueMetals: 0
   m_SceneViewState:
-    m_AlwaysRefresh: 1
+    m_AlwaysRefresh: 0
     showFog: 1
     showSkybox: 1
     showFlares: 1
@@ -1276,11 +1276,11 @@ MonoBehaviour:
     m_GridAxis: 1
     m_gridOpacity: 0.5
   m_Rotation:
-    m_Target: {x: -0.1909521, y: -0.24141586, z: 0.048506677, w: -0.95024025}
+    m_Target: {x: 0.099772066, y: 0.80267525, z: -0.14004904, w: 0.57115537}
     speed: 2
-    m_Value: {x: -0.19094698, y: -0.24140938, z: 0.048505377, w: -0.95021474}
+    m_Value: {x: -0.19095209, y: -0.24141584, z: 0.048506673, w: -0.9502402}
   m_Size:
-    m_Target: 25.57003
+    m_Target: 0.7208641
     speed: 2
     m_Value: 25.57003
   m_Ortho:
