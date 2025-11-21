@@ -63,6 +63,8 @@ public class EnemyAiTutorial : MonoBehaviour
     [Header("Player Settings")]
     public Team playerTeam = Team.TeamA;
     private static Transform humanPlayerTransform;
+    [Header("Animation")]
+    public AnimationController animController;
 
     private void Awake()
     {
@@ -76,6 +78,8 @@ public class EnemyAiTutorial : MonoBehaviour
             GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
             if (playerObj != null) humanPlayerTransform = playerObj.transform;
         }
+
+        if (animController == null) animController = GetComponentInChildren<AnimationController>();
     }
 
     private void OnEnable() => allBots.Add(this);
@@ -94,6 +98,11 @@ public class EnemyAiTutorial : MonoBehaviour
 
         hasPuck = IsPuckClose();
 
+        if (animController != null)
+        {
+            animController.SetPushing(agent.velocity.magnitude > 0.1f);
+        }
+
         if (hasPuck)
         {
             HandlePuckPossession();
@@ -105,6 +114,7 @@ public class EnemyAiTutorial : MonoBehaviour
 
     private void HandleStamina()
     {
+        AiState prev = currentState;
         staminaTimer -= Time.deltaTime;
         if (currentState == AiState.Moving && staminaTimer <= 0f)
         {
@@ -117,6 +127,11 @@ public class EnemyAiTutorial : MonoBehaviour
             currentState = AiState.Moving;
             staminaTimer = Random.Range(minMoveTime, maxMoveTime);
             agent.isStopped = false;
+        }
+
+        if (prev != currentState && animController != null)
+        {
+            animController.SetTired(currentState == AiState.Resting);
         }
     }
 
@@ -274,6 +289,7 @@ public class EnemyAiTutorial : MonoBehaviour
 
         puckRb.AddForce(finalDirection * meleeForce, ForceMode.Impulse);
         PostAttackCooldown();
+        if (animController != null) animController.TriggerRandomHit();
     }
 
     private void PassPuckTo(Transform target)
@@ -284,6 +300,7 @@ public class EnemyAiTutorial : MonoBehaviour
         Vector3 direction = (target.position - player.position).normalized;
         puckRb.AddForce(direction * meleeForce, ForceMode.Impulse);
         PostAttackCooldown();
+        if (animController != null) animController.TriggerRandomHit();
     }
 
     private void PostAttackCooldown()

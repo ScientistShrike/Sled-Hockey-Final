@@ -168,6 +168,9 @@ public class ScoreManager : MonoBehaviour
         }
         UpdateScoreDisplay();
 
+        // Trigger victory/loss animations for teams immediately after a goal
+        TriggerGoalAnimations(scorer);
+
         // CheckForWin now returns true if the game ended
         if (!CheckForWin())
         {
@@ -273,5 +276,71 @@ public class ScoreManager : MonoBehaviour
 
         // Finally, pause the game after the UI has been set up.
         Time.timeScale = 0f;
+    }
+
+    private void TriggerGoalAnimations(string scorer)
+    {
+        // Determine which EnemyAiTutorial.Team corresponds to the human player at runtime.
+        // Some scenes may set the human player to TeamB in the inspector, so don't assume TeamA.
+        EnemyAiTutorial.Team humanTeam = EnemyAiTutorial.Team.TeamA;
+        if (EnemyAiTutorial.allBots != null && EnemyAiTutorial.allBots.Count > 0)
+        {
+            // Use the first bot's configured playerTeam as the canonical human team assignment.
+            var firstBot = EnemyAiTutorial.allBots[0];
+            if (firstBot != null)
+                humanTeam = firstBot.playerTeam;
+        }
+
+        // Map the scorer string to the correct scoring team using the detected human team.
+        EnemyAiTutorial.Team scoringTeam;
+        if (scorer == "player")
+        {
+            scoringTeam = humanTeam;
+        }
+        else
+        {
+            // If a bot scores, the scoring team is the opposite of the human team.
+            scoringTeam = (humanTeam == EnemyAiTutorial.Team.TeamA) ? EnemyAiTutorial.Team.TeamB : EnemyAiTutorial.Team.TeamA;
+        }
+        // --- Animate All Bots Based on Their Team ---
+        if (EnemyAiTutorial.allBots != null)
+        {
+            foreach (var bot in EnemyAiTutorial.allBots)
+            {
+                if (bot == null) continue;
+
+                // Use GetComponentInChildren as the controller might not be on the root object.
+                var ac = bot.GetComponentInChildren<AnimationController>();
+                if (ac == null) continue;
+
+                if (bot.botTeam == scoringTeam)
+                {
+                    ac.PlayVictory();
+                }
+                else
+                {
+                    ac.PlayLoss();
+                }
+            }
+        }
+
+        // --- Animate The Human Player ---
+        var playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            var playerAnimationController = playerObj.GetComponentInChildren<AnimationController>();
+            if (playerAnimationController != null)
+            {
+                // Assuming the player is on TeamA.
+                if (scoringTeam == EnemyAiTutorial.Team.TeamA)
+                {
+                    playerAnimationController.PlayVictory();
+                }
+                else
+                {
+                    playerAnimationController.PlayLoss();
+                }
+            }
+        }
     }
 }
