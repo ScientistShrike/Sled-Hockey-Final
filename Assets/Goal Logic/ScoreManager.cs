@@ -27,7 +27,13 @@ public class ScoreManager : MonoBehaviour
     public TextMeshProUGUI botScoreText;
 
     [Header("Timer")]
-    public float timeRemaining = 120;
+    [SerializeField]
+    private float _timeRemaining = 120;
+    public float timeRemaining 
+    { 
+        get { return _timeRemaining; } 
+        set { _timeRemaining = value; } 
+    }
     public bool timerIsRunning = false;
     public TextMeshProUGUI timeText;
 
@@ -40,6 +46,9 @@ public class ScoreManager : MonoBehaviour
     public GameObject puck;
     public Transform playerSpawnPoint;
     public float resetCooldown = 3.0f;
+
+    [Header("Goal Celebration")]
+    public GoalCelebration goalCelebration;
 
     private bool isGameOver = false;
     private bool isResetting = false;
@@ -57,7 +66,8 @@ public class ScoreManager : MonoBehaviour
             Debug.Log("ScoreManager.Start(): New Game Detected. Resetting GameSession state.");
             GameSession.PlayerScore = 0;
             GameSession.BotScore = 0;
-            GameSession.TimeRemaining = 120f; // Reset to the full time for safety
+            // Use the inspector-assigned value instead of a hard-coded constant
+            GameSession.TimeRemaining = timeRemaining; // Preserve inspector value
             GameSession.IsInitialized = true;
         }
         else
@@ -75,12 +85,25 @@ public class ScoreManager : MonoBehaviour
         // this instance of ScoreManager needs to sync its local variables with the session state.
         playerScore = GameSession.PlayerScore;
         botScore = GameSession.BotScore;
-        timeRemaining = GameSession.TimeRemaining;
+        
+        // Only use persisted time if already initialized, otherwise use inspector value
+        if (GameSession.IsInitialized)
+        {
+            timeRemaining = GameSession.TimeRemaining;
+        }
+        else
+        {
+            // First time - use the inspector value, then save it
+            GameSession.TimeRemaining = timeRemaining;
+        }
 
         timerIsRunning = true;
         isGameOver = false;
         isResetting = false;
         Time.timeScale = 1f;
+
+        // Clear the global game-over flag at the start of a new or resumed session
+        GameSession.IsGameOver = false;
 
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
@@ -168,6 +191,12 @@ public class ScoreManager : MonoBehaviour
         }
         UpdateScoreDisplay();
 
+        // Trigger goal celebration
+        if (goalCelebration != null)
+        {
+            goalCelebration.Play();
+        }
+
         // Trigger victory/loss animations for teams immediately after a goal
         TriggerGoalAnimations(scorer);
 
@@ -249,11 +278,13 @@ public class ScoreManager : MonoBehaviour
 
     void EndGame(GameResult result)
     {
+        Time.timeScale = 0f; // Ensure the game freezes immediately upon game over.
         isGameOver = true;
         timerIsRunning = false;
 
         // Reset the session so the next game starts fresh.
         GameSession.IsInitialized = false;
+        GameSession.IsGameOver = true;
         
         GameObject panelToShow = null;
         switch(result)
@@ -273,9 +304,107 @@ public class ScoreManager : MonoBehaviour
         {
             panelToShow.SetActive(true);
         }
+            
+            // Ensure XR/UI interactors are enabled so the player can click buttons while the game is paused.
+            // Use the appropriate FindObjects API depending on Unity version to avoid deprecation warnings.
+#if UNITY_2023_1_OR_NEWER
+            var uiActivators = UnityEngine.Object.FindObjectsByType<UIRayActivator>(UnityEngine.FindObjectsSortMode.None);
+#else
+            var uiActivators = FindObjectsOfType<UIRayActivator>();
+#endif
+            if (uiActivators != null && uiActivators.Length > 0)
+            {
+                foreach (var a in uiActivators)
+                {
+                    if (a != null)
+                        a.SetInteractorsActive(true);
+                }
+            }
+            
+            // If there is no EventSystem present, warn the developer.
+            if (UnityEngine.EventSystems.EventSystem.current == null)
+            {
+                Debug.LogWarning("ScoreManager.EndGame(): No EventSystem found in scene. UI interaction may not work.");
+            }
 
-        // Finally, pause the game after the UI has been set up.
-        Time.timeScale = 0f;
+        // Prefer using the PauseManager's pause logic so Game Over behaves like Pause.
+    #if UNITY_2023_1_OR_NEWER
+        PauseManager pauseManager = UnityEngine.Object.FindFirstObjectByType<PauseManager>();
+    #else
+        PauseManager pauseManager = FindObjectOfType<PauseManager>();
+    #endif
+        if (pauseManager != null)
+        {
+            // Do not show the regular pause menu; just enable interactor and set timescale.
+            pauseManager.SetPaused(true, false);
+
+            // Also freeze actors so visuals stop regardless of unscaled updates.
+            FreezeActorsForEndGame();
+        }
+        else
+        {
+            // Fallback: freeze actors and set timescale directly.
+            FreezeActorsForEndGame();
+            Time.timeScale = 0f;
+        }
+    }
+
+    /// <summary>
+    /// Stop bots, puck physics and player movement so the scene visually halts on game over.
+    /// Mirrors the freezing logic used after goals but does not reload the scene.
+    /// </summary>
+    private void FreezeActorsForEndGame()
+    {
+        // Disable AI and NavMeshAgents for all bots
+        if (EnemyAiTutorial.allBots != null)
+        {
+            foreach (var botAI in EnemyAiTutorial.allBots)
+            {
+                if (botAI == null) continue;
+
+                botAI.enabled = false;
+
+                NavMeshAgent navAgent = botAI.GetComponent<NavMeshAgent>();
+                if (navAgent != null)
+                    navAgent.enabled = false;
+
+                Rigidbody botRb = botAI.GetComponent<Rigidbody>();
+                if (botRb != null)
+                {
+                    botRb.linearVelocity = Vector3.zero;
+                    botRb.angularVelocity = Vector3.zero;
+                    botRb.isKinematic = true;
+                }
+            }
+        }
+
+        // Freeze the puck
+        if (puck != null)
+        {
+            Rigidbody puckRb = puck.GetComponent<Rigidbody>();
+            if (puckRb != null)
+            {
+                puckRb.linearVelocity = Vector3.zero;
+                puckRb.angularVelocity = Vector3.zero;
+                puckRb.isKinematic = true;
+            }
+        }
+
+        // Disable player movement script if present
+        try
+        {
+            PlayerPuckHandler puckHandler = FindFirstObjectByType<PlayerPuckHandler>();
+            if (puckHandler != null)
+            {
+                var movement = puckHandler.playerMovement;
+                if (movement != null)
+                    movement.enabled = false;
+            }
+        }
+        catch
+        {
+            // Ignore if API not available in current Unity version
+        }
     }
 
     private void TriggerGoalAnimations(string scorer)

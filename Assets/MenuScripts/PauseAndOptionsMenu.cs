@@ -6,12 +6,18 @@ public class PauseAndOptionsMenu : MonoBehaviour
     public GameObject pauseMenu;
     public GameObject optionsMenu;
     
+    [Header("Interactors")]
+    [Tooltip("Drag the near-far interactor GameObject (under the right controller) here.")]
+    public GameObject nearFarInteractor;
+
     private bool isPaused = false;
 
     void Start()
     {
         pauseMenu.SetActive(false);
         optionsMenu.SetActive(false);
+        if (nearFarInteractor != null)
+            nearFarInteractor.SetActive(false);
     }
 
     public void OpenPauseMenu()
@@ -20,6 +26,9 @@ public class PauseAndOptionsMenu : MonoBehaviour
         optionsMenu.SetActive(false);
         Time.timeScale = 0f;  // freeze game
         isPaused = true;
+        if (nearFarInteractor != null)
+            nearFarInteractor.SetActive(true);
+        Debug.Log("PauseAndOptionsMenu: Pause menu opened and near-far interactor shown.");
     }
 
     public void ClosePauseMenu()
@@ -29,6 +38,8 @@ public class PauseAndOptionsMenu : MonoBehaviour
         optionsMenu.SetActive(false);
         Time.timeScale = 1f;  // unfreeze
         isPaused = false;
+        if (nearFarInteractor != null)
+            nearFarInteractor.SetActive(false);
         
         Debug.Log("[RESUME] TimeScale set to: " + Time.timeScale);
         Debug.Log("[RESUME] Pause menu active: " + pauseMenu.activeSelf);

@@ -9,4 +9,7 @@ public static class GameSession
 
     // A flag to check if this is the first time the game is starting.
     public static bool IsInitialized = false;
+
+    // A flag indicating the game has reached its end state (win/lose/draw).
+    public static bool IsGameOver = false;
 }

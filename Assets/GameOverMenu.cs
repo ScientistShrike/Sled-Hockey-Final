@@ -9,6 +9,15 @@ public class GameOverMenu : MonoBehaviour
 {
     [Tooltip("The name of your main menu scene. Make sure it's added to your Build Settings.")]
     public string mainMenuSceneName = "MainMenu";
+    [Header("Interactors")]
+    [Tooltip("Drag the near-far interactor GameObject (under the right controller) here.")]
+    public GameObject nearFarInteractor;
+
+    void Start()
+    {
+        // Ensure the game is unpaused when this manager starts in editor/menus
+        Time.timeScale = 0f;
+    }
 
     /// <summary>
     /// Restarts the current game by reloading the active scene.
@@ -40,6 +49,18 @@ public class GameOverMenu : MonoBehaviour
 
         // Load the main menu scene by name.
         SceneManager.LoadScene(mainMenuSceneName);
+    }
+    
+    void OnEnable()
+    {
+        if (nearFarInteractor != null)
+            nearFarInteractor.SetActive(true);
+    }
+    
+    void OnDisable()
+    {
+        if (nearFarInteractor != null)
+            nearFarInteractor.SetActive(false);
     }
 
     

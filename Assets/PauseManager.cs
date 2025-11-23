@@ -4,6 +4,10 @@ using UnityEngine.SceneManagement;
 
 public class PauseManager : MonoBehaviour
 {
+    [Header("Interactors")]
+    [Tooltip("The Near-Far interactor GameObject to toggle with the pause menu.")]
+    public GameObject nearFarInteractor;
+
     [Header("UI Panels")]
     [Tooltip("The main pause menu UI.")]
     public GameObject pauseMenu;
@@ -37,6 +41,16 @@ public class PauseManager : MonoBehaviour
 
         // Find PauseAndOptionsMenu if it exists
         pauseAndOptionsMenu = FindFirstObjectByType<PauseAndOptionsMenu>();
+
+        if (nearFarInteractor == null)
+        {
+            Debug.LogWarning("PauseManager: Near-Far interactor GameObject is not assigned!");
+        }
+        else
+        {
+            nearFarInteractor.SetActive(false);
+            Debug.Log("PauseManager: Near-Far interactor GameObject disabled on Awake.");
+        }
     }
 
     private void OnEnable()
@@ -61,16 +75,30 @@ public class PauseManager : MonoBehaviour
 
     private void OnPausePerformed(InputAction.CallbackContext context)
     {
+        // Ignore pause input if the game is over (so Game Over UI is not toggled accidentally)
+        if (GameSession.IsGameOver)
+        {
+            Debug.Log("PauseManager: Ignoring pause input because game is over.");
+            return;
+        }
         // If PauseAndOptionsMenu is handling pause, delegate to it
         if (pauseAndOptionsMenu != null)
         {
-            if (pauseAndOptionsMenu.IsPaused())
+            bool isCurrentlyPaused = pauseAndOptionsMenu.IsPaused();
+            if (isCurrentlyPaused)
             {
                 pauseAndOptionsMenu.ClosePauseMenu();
             }
             else
             {
                 pauseAndOptionsMenu.OpenPauseMenu();
+            }
+
+            // Toggle the interactor state based on the new pause state
+            if (nearFarInteractor != null)
+            {
+                nearFarInteractor.SetActive(!isCurrentlyPaused);
+                Debug.Log("PauseManager: Interactor GameObject active state set to " + nearFarInteractor.activeSelf);
             }
             Debug.Log("PauseManager: Delegated pause to PauseAndOptionsMenu");
         }
@@ -99,6 +127,42 @@ public class PauseManager : MonoBehaviour
         }
 
         Time.timeScale = isPaused ? 0f : 1f;
+
+        // Toggle the interactor
+        if (nearFarInteractor != null)
+        {
+            nearFarInteractor.SetActive(isPaused);
+            Debug.Log("PauseManager: Toggled interactor GameObject active state to " + nearFarInteractor.activeSelf);
+        }
+    }
+
+    /// <summary>
+    /// Explicitly set paused/unpaused state. Use this to force pause from other systems
+    /// (for example when Game Over appears). `showPauseMenu` controls whether the
+    /// regular pause menu is shown; pass false when showing a different UI (game over).
+    /// </summary>
+    public void SetPaused(bool paused, bool showPauseMenu = true)
+    {
+        isPaused = paused;
+
+        // Show/hide pause and settings UI
+        if (pauseMenu != null)
+            pauseMenu.SetActive(isPaused && showPauseMenu);
+
+        if (!isPaused)
+        {
+            if (settingsMenu != null) settingsMenu.SetActive(false);
+        }
+
+        // Apply timescale
+        Time.timeScale = isPaused ? 0f : 1f;
+
+        // Toggle the interactor
+        if (nearFarInteractor != null)
+        {
+            nearFarInteractor.SetActive(isPaused);
+            Debug.Log("PauseManager: SetPaused changed interactor active state to " + nearFarInteractor.activeSelf);
+        }
     }
 
     public void ResumeGame()
@@ -110,6 +174,13 @@ public class PauseManager : MonoBehaviour
         {
             pauseAndOptionsMenu.ClosePauseMenu();
             Debug.Log("PauseManager: Delegated resume to PauseAndOptionsMenu");
+
+            // Also handle the interactor here when delegating
+            if (nearFarInteractor != null)
+            {
+                nearFarInteractor.SetActive(false);
+                Debug.Log("PauseManager: ResumeGame disabled interactor GameObject via delegation.");
+            }
             return;
         }
 
@@ -120,6 +191,13 @@ public class PauseManager : MonoBehaviour
         if (pauseMenu != null) pauseMenu.SetActive(false);
         if (settingsMenu != null) settingsMenu.SetActive(false); // Also hide settings on resume
         Time.timeScale = 1f;
+        
+        // Disable the interactor
+        if (nearFarInteractor != null)
+        {
+            nearFarInteractor.SetActive(false);
+            Debug.Log("PauseManager: ResumeGame disabled interactor GameObject via fallback.");
+        }
 
         // Safety: Re-enable player movement in case it was disabled
         try

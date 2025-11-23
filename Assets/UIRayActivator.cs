@@ -1,60 +1,25 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine.XR.Interaction.Toolkit;
 
-/// <summary>
-/// Activates ray interactors when specific UI panels are visible.
-/// This is useful for enabling UI interaction only when a menu is open.
-/// Attach this to the player's root object (e.g., the XR Origin).
-/// </summary>
+// Deprecated stub: UIRayActivator behavior has been removed in favor of menu-driven toggles.
+// This file is intentionally a no-op to avoid accidental behavior. Remove this component
+// from any GameObjects to fully delete it from the project.
+[DisallowMultipleComponent]
+[AddComponentMenu("")]
 public class UIRayActivator : MonoBehaviour
 {
-    [Header("Ray Interactors")]
-    [Tooltip("The ray interactor GameObjects to activate/deactivate.")]
-    public List<GameObject> rayInteractors;
-
-    [Header("UI Panels to Monitor")]
-    [Tooltip("The UI panels that, when active, will enable the ray interactors.")]
-    public List<GameObject> uiPanels;
-
-    void Start()
+    void Awake()
     {
-        // Set the initial state of the ray interactors when the game starts.
-        UpdateRayInteractorState();
-        StartCoroutine(UpdateRayInteractorStateCoroutine());
+        Debug.LogWarning("UIRayActivator is deprecated and present as a stub. Remove this component if you want it deleted.");
     }
 
-    private IEnumerator UpdateRayInteractorStateCoroutine()
+    /// <summary>
+    /// Backwards-compatible no-op. ScoreManager calls this to ensure UI interactors
+    /// are enabled when Game Over/UI appears. We now handle interactor toggling
+    /// via menu scripts, so this method intentionally does nothing except log.
+    /// </summary>
+    public void SetInteractorsActive(bool active)
     {
-        while (true)
-        {
-            UpdateRayInteractorState();
-            yield return new WaitForSecondsRealtime(0.1f); // Check every 100ms
-        }
-    }
-
-    private void UpdateRayInteractorState()
-    {
-        bool shouldBeActive = false;
-
-        // Check if any of the specified UI panels are currently active.
-        foreach (var panel in uiPanels)
-        {
-            if (panel != null && panel.activeInHierarchy)
-            {
-                shouldBeActive = true;
-                break;
-            }
-        }
-
-        // Set the active state of all ray interactors to match.
-        foreach (var interactorGO in rayInteractors)
-        {
-            if (interactorGO == null)
-                continue;
-
-            interactorGO.SetActive(shouldBeActive);
-        }
+        Debug.Log("UIRayActivator.SetInteractorsActive called (deprecated stub). active=" + active);
+        // Intentionally left blank — menu scripts now control interactors.
     }
 }
