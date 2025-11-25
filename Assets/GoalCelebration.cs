@@ -4,7 +4,7 @@ using UnityEngine;
 public class GoalCelebration : MonoBehaviour
 {
     public ParticleSystem[] confettiEffects;
-    public AudioClip goalHornSound;
+    public GameObject goalHornObject; // GameObject which has an AudioSource to play the horn from
 
     private AudioSource audioSource;
 
@@ -56,9 +56,35 @@ public class GoalCelebration : MonoBehaviour
             }
         }
 
-        if (goalHornSound != null && audioSource != null)
+        AudioSource goalSrc = goalHornObject != null ? goalHornObject.GetComponentInChildren<AudioSource>() : audioSource;
+        if (goalSrc != null)
         {
-            audioSource.PlayOneShot(goalHornSound);
+            // Play the horn using Play so we can stop it when the particle effects finish.
+            goalSrc.loop = false;
+            goalSrc.Play();
+
+            // If we have confetti particle systems, stop the audio when the longest particle duration finishes
+            float maxParticleDuration = 0f;
+            if (confettiEffects != null)
+            {
+                foreach (var effect in confettiEffects)
+                {
+                    if (effect == null) continue;
+                    var main = effect.main;
+                    if (main.duration > maxParticleDuration) maxParticleDuration = main.duration;
+                }
+            }
+
+            if (maxParticleDuration > 0f)
+            {
+                StartCoroutine(StopAudioAfter(maxParticleDuration, goalSrc));
+            }
         }
+    }
+
+    private System.Collections.IEnumerator StopAudioAfter(float seconds, AudioSource source)
+    {
+        yield return new WaitForSecondsRealtime(seconds);
+        if (source != null && source.isPlaying) source.Stop();
     }
 }

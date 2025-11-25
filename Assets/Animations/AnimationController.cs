@@ -20,6 +20,11 @@ public class AnimationController : MonoBehaviour
             Debug.Log("Animator found on " + animator.gameObject.name);
         }
     }
+            // Public durations so other systems can synchronize audio playback to animation lengths.
+            [Header("Animation Durations (seconds)")]
+            public float hitDuration = 0.8f;
+            public float victoryDuration = 2.0f;
+            public float lossDuration = 2.0f;
 
     // ----- MOVEMENT / IDLE -----
     public void SetPushing(bool value)
@@ -57,6 +62,7 @@ public class AnimationController : MonoBehaviour
     {
         if (animator == null) return;
         animator.SetBool("tired", value);
+        // Keep SetTired simple to avoid conflicting inputs; idle is updated by SetPushing/SetBusy.
     }
 
     // ----- HITTING -----
@@ -68,7 +74,7 @@ public class AnimationController : MonoBehaviour
         bool left = Random.value < 0.5f;
 
         // Mark briefly busy while the hit animation plays
-        StartCoroutine(TemporaryBusy(0.8f));
+        StartCoroutine(TemporaryBusy(hitDuration));
 
         if (left)
             animator.SetTrigger("hittingleft");
@@ -81,16 +87,50 @@ public class AnimationController : MonoBehaviour
     {
         if (animator == null) return;
         // Mark busy for the duration of the victory animation
-        StartCoroutine(TemporaryBusy(2.0f));
+        StartCoroutine(TemporaryBusy(victoryDuration));
         animator.SetTrigger("Victory");
+        // Play cheer sound if an AI or player-specific audio component is present
+        var enemyAI = GetComponentInParent<EnemyAiTutorial>();
+        if (enemyAI != null)
+        {
+            Debug.Log($"[AnimationController] Found EnemyAiTutorial on '{enemyAI.gameObject.name}', playing cheer for '{enemyAI.gameObject.name}'");
+            // Pass the animation duration so audio syncs with the animation
+            enemyAI.PlayCheerSound(victoryDuration);
+            return;
+        }
+
+        var playerAudio = GetComponentInParent<PlayerAudio>();
+        if (playerAudio != null)
+        {
+            Debug.Log($"[AnimationController] Found PlayerAudio on '{playerAudio.gameObject.name}', playing cheer for player");
+            playerAudio.PlayCheerSound(victoryDuration);
+            return;
+        }
     }
 
     public void PlayLoss()
     {
         if (animator == null) return;
         // Mark busy for the duration of the loss animation
-        StartCoroutine(TemporaryBusy(2.0f));
+        StartCoroutine(TemporaryBusy(lossDuration));
         animator.SetTrigger("Loss");
+        // Play sad sound if an AI or player-specific audio component is present
+        var enemyAI = GetComponentInParent<EnemyAiTutorial>();
+        if (enemyAI != null)
+        {
+            Debug.Log($"[AnimationController] Found EnemyAiTutorial on '{enemyAI.gameObject.name}', playing sad for '{enemyAI.gameObject.name}'");
+            // Pass the animation duration so audio syncs with the animation
+            enemyAI.PlaySadSound(lossDuration);
+            return;
+        }
+
+        var playerAudio = GetComponentInParent<PlayerAudio>();
+        if (playerAudio != null)
+        {
+            Debug.Log($"[AnimationController] Found PlayerAudio on '{playerAudio.gameObject.name}', playing sad for player");
+            playerAudio.PlaySadSound(lossDuration);
+            return;
+        }
     }
 
     // Temporarily mark the controller as busy for a short duration.

@@ -87,6 +87,8 @@
     <Compile Include="Assets\RandomStuffThatsNotMine\FadeScreen.cs" />
     <Compile Include="Assets\HockeyPuckHighlight.cs" />
     <Compile Include="Assets\PlayerPuckHandler.cs" />
+    <Compile Include="Assets\PlayerAudio.cs" />
+    <Compile Include="Assets\Audio\PlayerAudioforplayer.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\Callout.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\PlayAudioFromAudioManager.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\AutoColliderAlign.cs" />
@@ -98,6 +100,7 @@
     <Compile Include="Assets\Player\PlayerGroundSpawner.cs" />
     <Compile Include="Assets\FaceCamera.cs" />
     <Compile Include="Assets\MenuScripts\JoystickMenuNavigation_InputSystem.cs" />
+    <Compile Include="Assets\SoundEffects.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\StepManager.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\SetOptionFromUI.cs" />
     <Compile Include="Assets\Goal Logic\ScoreManager.cs" />
