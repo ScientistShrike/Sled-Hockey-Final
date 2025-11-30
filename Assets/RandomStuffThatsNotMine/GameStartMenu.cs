@@ -42,6 +42,10 @@ public class GameStartMenu : MonoBehaviour
 
     public void StartGame()
     {
+        if (GameSessionManager.Instance != null)
+        {
+            GameSessionManager.Instance.TutorialHasBeenShown = false;
+        }
         HideAll();
         SceneTransitionManager.singleton.GoToSceneAsync(1);
     }

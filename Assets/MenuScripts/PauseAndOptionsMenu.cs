@@ -16,7 +16,7 @@ public class PauseAndOptionsMenu : MonoBehaviour
     {
         pauseMenu.SetActive(false);
         optionsMenu.SetActive(false);
-        if (nearFarInteractor != null)
+        if (nearFarInteractor != null && !NewTutorialPanelController.isTutorialActive)
             nearFarInteractor.SetActive(false);
     }
 
@@ -37,7 +37,7 @@ public class PauseAndOptionsMenu : MonoBehaviour
         optionsMenu.SetActive(false);
         Time.timeScale = 1f;  // unfreeze
         isPaused = false;
-        if (nearFarInteractor != null)
+        if (nearFarInteractor != null && !NewTutorialPanelController.isTutorialActive)
             nearFarInteractor.SetActive(false);
         
         

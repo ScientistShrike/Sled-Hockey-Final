@@ -29,7 +29,7 @@ public class GameOverMenu : MonoBehaviour
         Time.timeScale = 1f;
 
         // Reset the game session state for a fresh start.
-        GameSession.IsInitialized = false;
+        GameSessionManager.Instance.IsInitialized = false;
 
         // Reload the current scene.
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -45,7 +45,7 @@ public class GameOverMenu : MonoBehaviour
         Time.timeScale = 1f;
 
         // Reset the game session state.
-        GameSession.IsInitialized = false;
+        GameSessionManager.Instance.IsInitialized = false;
 
         // Load the main menu scene by name.
         SceneManager.LoadScene(mainMenuSceneName);
@@ -59,7 +59,7 @@ public class GameOverMenu : MonoBehaviour
     
     void OnDisable()
     {
-        if (nearFarInteractor != null)
+        if (nearFarInteractor != null && !NewTutorialPanelController.isTutorialActive)
             nearFarInteractor.SetActive(false);
     }
 

@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\MenuScripts\SettingsMenu.cs" />
+    <Compile Include="Assets\GameSessionInitializer.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\PermissionsManager.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\VideoPlayerRenderTexture.cs" />
     <Compile Include="Assets\UIRayActivator.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Assets\XRStickMovement.cs" />
     <Compile Include="Assets\HockeyPuck highlight.cs" />
     <Compile Include="Assets\PauseManager.cs" />
+    <Compile Include="Assets\GameSessionManager.cs" />
     <Compile Include="Assets\Goal Logic\PlayerGoalScore.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\UIAudio.cs" />
     <Compile Include="Assets\PuckCollisionLogger.cs" />

@@ -61,14 +61,13 @@ public class ScoreManager : MonoBehaviour
 
         // If the session is NOT initialized, it means this is a brand new game.
         // We need to reset all session values to their defaults.
-        if (!GameSession.IsInitialized)
+        if (!GameSessionManager.Instance.IsInitialized)
         {
-            GameSession.PlayerScore = 0;
-            GameSession.BotScore = 0;
+            GameSessionManager.Instance.PlayerScore = 0;
+            GameSessionManager.Instance.BotScore = 0;
             // Use the inspector-assigned value instead of a hard-coded constant
-            GameSession.TimeRemaining = timeRemaining; // Preserve inspector value
-            GameSession.IsInitialized = true;
-            GameSession.TutorialHasBeenShown = false; // Reset tutorial flag for new game
+            GameSessionManager.Instance.TimeRemaining = timeRemaining; // Preserve inspector value
+            GameSessionManager.Instance.IsInitialized = true;
         }
         else
         {
@@ -82,27 +81,30 @@ public class ScoreManager : MonoBehaviour
 
         // Regardless of whether it's a new game or a mid-game reload,
         // this instance of ScoreManager needs to sync its local variables with the session state.
-        playerScore = GameSession.PlayerScore;
-        botScore = GameSession.BotScore;
+        playerScore = GameSessionManager.Instance.PlayerScore;
+        botScore = GameSessionManager.Instance.BotScore;
         
         // Only use persisted time if already initialized, otherwise use inspector value
-        if (GameSession.IsInitialized)
+        if (GameSessionManager.Instance.IsInitialized)
         {
-            timeRemaining = GameSession.TimeRemaining;
+            timeRemaining = GameSessionManager.Instance.TimeRemaining;
         }
         else
         {
             // First time - use the inspector value, then save it
-            GameSession.TimeRemaining = timeRemaining;
+            GameSessionManager.Instance.TimeRemaining = timeRemaining;
         }
 
         timerIsRunning = true;
         isGameOver = false;
         isResetting = false;
-        Time.timeScale = 1f;
+        if (!NewTutorialPanelController.isTutorialActive)
+        {
+            Time.timeScale = 1f;
+        }
 
         // Clear the global game-over flag at the start of a new or resumed session
-        GameSession.IsGameOver = false;
+        GameSessionManager.Instance.IsGameOver = false;
 
         if (winPanel != null) winPanel.SetActive(false);
         if (losePanel != null) losePanel.SetActive(false);
@@ -123,7 +125,7 @@ public class ScoreManager : MonoBehaviour
             if (timeRemaining > 0)
             {
                 timeRemaining -= Time.deltaTime;
-                GameSession.TimeRemaining = timeRemaining; // Persist time
+                GameSessionManager.Instance.TimeRemaining = timeRemaining; // Persist time
                 DisplayTime(timeRemaining);
             }
             else
@@ -181,12 +183,12 @@ public class ScoreManager : MonoBehaviour
         if (scorer == "player")
         {
             playerScore++;
-            GameSession.PlayerScore = playerScore;
+            GameSessionManager.Instance.PlayerScore = playerScore;
         }
         else if (scorer == "bot")
         {
             botScore++;
-            GameSession.BotScore = botScore;
+            GameSessionManager.Instance.BotScore = botScore;
         }
         UpdateScoreDisplay();
 
@@ -282,9 +284,8 @@ public class ScoreManager : MonoBehaviour
         timerIsRunning = false;
 
         // Reset the session so the next game starts fresh.
-        GameSession.IsInitialized = false;
-        GameSession.IsGameOver = true;
-        GameSession.TutorialHasBeenShown = false; // Reset tutorial flag for new game
+        GameSessionManager.Instance.IsInitialized = false;
+        GameSessionManager.Instance.IsGameOver = true;
         
         GameObject panelToShow = null;
         switch(result)

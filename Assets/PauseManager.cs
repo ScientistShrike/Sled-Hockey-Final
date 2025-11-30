@@ -27,9 +27,6 @@ public class PauseManager : MonoBehaviour
 
     private void Awake()
     {
-        // Ensure time is running when the scene starts, in case it was left paused
-        Time.timeScale = 1f;
-
         // Ensure UI is hidden at the start.
         if (pauseMenu != null) pauseMenu.SetActive(false);
         if (settingsMenu != null) settingsMenu.SetActive(false);
@@ -41,12 +38,22 @@ public class PauseManager : MonoBehaviour
         // Find PauseAndOptionsMenu if it exists
         pauseAndOptionsMenu = FindFirstObjectByType<PauseAndOptionsMenu>();
 
-        if (nearFarInteractor == null)
+        // We defer initial interactor state to Start so any tutorial controller
+        // can run its Awake and set `isTutorialActive` correctly.
+    }
+
+    private void Start()
+    {
+        if (nearFarInteractor != null)
         {
-        }
-        else
-        {
-            nearFarInteractor.SetActive(false);
+            // If the tutorial exists and is not currently active, start with
+            // interactor disabled. If the tutorial is active, the tutorial
+            // controller will have enabled it and we shouldn't override.
+            if (GameSessionManager.Instance.TutorialHasBeenShown && !NewTutorialPanelController.isTutorialActive)
+            {
+                nearFarInteractor.SetActive(false);
+            }
+            Debug.Log($"PauseManager.Start: nearFarInteractor active={nearFarInteractor.activeSelf}, TutorialActive={NewTutorialPanelController.isTutorialActive}");
         }
     }
 
@@ -76,7 +83,7 @@ public class PauseManager : MonoBehaviour
             return;
         }
         // Ignore pause input if the game is over (so Game Over UI is not toggled accidentally)
-        if (GameSession.IsGameOver)
+        if (GameSessionManager.Instance.IsGameOver)
         {
             return;
         }
@@ -96,7 +103,9 @@ public class PauseManager : MonoBehaviour
             // Toggle the interactor state based on the new pause state
             if (nearFarInteractor != null)
             {
-                nearFarInteractor.SetActive(!isCurrentlyPaused);
+                // Keep interactor enabled while tutorial is active, otherwise
+                // reflect pause state.
+                nearFarInteractor.SetActive(!isCurrentlyPaused || NewTutorialPanelController.isTutorialActive);
             }
         }
         else
@@ -128,7 +137,7 @@ public class PauseManager : MonoBehaviour
         // Toggle the interactor
             if (nearFarInteractor != null)
             {
-                nearFarInteractor.SetActive(isPaused);
+                nearFarInteractor.SetActive(isPaused || NewTutorialPanelController.isTutorialActive);
             }
     }
 
@@ -156,7 +165,7 @@ public class PauseManager : MonoBehaviour
         // Toggle the interactor
         if (nearFarInteractor != null)
         {
-            nearFarInteractor.SetActive(isPaused);
+            nearFarInteractor.SetActive(isPaused || NewTutorialPanelController.isTutorialActive);
         }
     }
 
@@ -173,7 +182,8 @@ public class PauseManager : MonoBehaviour
             // Also handle the interactor here when delegating
                 if (nearFarInteractor != null)
                 {
-                    nearFarInteractor.SetActive(false);
+                    if (!NewTutorialPanelController.isTutorialActive)
+                        nearFarInteractor.SetActive(false);
                 }
             return;
         }
@@ -189,8 +199,10 @@ public class PauseManager : MonoBehaviour
         // Disable the interactor
         if (nearFarInteractor != null)
         {
-            nearFarInteractor.SetActive(false);
-            
+            if (!NewTutorialPanelController.isTutorialActive)
+            {
+                nearFarInteractor.SetActive(false);
+            }
         }
 
         // Safety: Re-enable player movement in case it was disabled
@@ -241,7 +253,7 @@ public class PauseManager : MonoBehaviour
 
         // By setting IsInitialized to false, we tell the ScoreManager to start a fresh game
         // the next time the game scene is loaded.
-        GameSession.IsInitialized = false;
+        GameSessionManager.Instance.IsInitialized = false;
 
         // Load the main menu scene.
         SceneManager.LoadScene(mainMenuSceneName);

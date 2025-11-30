@@ -22,6 +22,10 @@ public class MainMenu : MonoBehaviour
 
     public void Tutorial()
     {
+        if (GameSessionManager.Instance != null)
+        {
+            GameSessionManager.Instance.TutorialHasBeenShown = false;
+        }
         SceneManager.LoadScene(2);
     }
 
