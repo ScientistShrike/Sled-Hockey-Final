@@ -23,6 +23,8 @@ public class PlayerPuckHandler : MonoBehaviour
     public XRStickMovement playerMovement;
     [Tooltip("If set, this Transform will be used as the stick tip to hold/release the puck. If empty, the player's rightStickEnd will be used.")]
     public Transform stickTipOverride;
+    [Tooltip("Drag the GameObjects with the colliders you want to use for shooting here.")]
+    public System.Collections.Generic.List<GameObject> shotHitboxes;
 
     [Header("Possession Settings")]
     [Tooltip("Linear drag applied to puck while in possession (higher = stops faster)")]
@@ -38,6 +40,8 @@ public class PlayerPuckHandler : MonoBehaviour
     public float possessionDuration = 5f;
     [Tooltip("Cooldown after possession ends before it can be regained")]
     public float possessionCooldown = 1.0f;
+    [Tooltip("How long possession remains disabled when a stick collides with the puck (seconds)")]
+    public float stickTouchPossessionCooldown = 0.4f;
 
     [Header("Side Offsets")]
     public Vector3 leftPossessionOffset = new Vector3(-0.5f, 0f, 1f);
@@ -53,6 +57,11 @@ public class PlayerPuckHandler : MonoBehaviour
 
     private Transform puckTransform;
     private Rigidbody puckRigidbody;
+    [Header("References")]
+    [Tooltip("If set, this is the puck object that this PlayerPuckHandler will use. If empty, the handler will attempt to find GameObject named 'hockey_puck'.")]
+    // Assign the puck in the Inspector to ensure the handler references the correct object.
+    // If left empty, the handler will fall back to finding the object named "hockey_puck" at Start.
+    public GameObject puckObject;
     private float puckReleaseCooldown = 0f;
     // stick tracking for velocity calculation
     private Transform leftStickTip;
@@ -136,17 +145,25 @@ public class PlayerPuckHandler : MonoBehaviour
 
     void Start()
     {
-        GameObject puckObj = GameObject.Find("hockey_puck");
-        if (puckObj != null)
+        // Use inspector assigned puck if available
+        if (puckObject != null)
         {
-            puckTransform = puckObj.transform;
-            puckRigidbody = puckObj.GetComponent<Rigidbody>();
+            puckTransform = puckObject.transform;
+            puckRigidbody = puckObject.GetComponent<Rigidbody>();
         }
         else
         {
-            Debug.LogError("PlayerPuckHandler Error: Could not find 'hockey_puck'.", this);
-            this.enabled = false;
-            return;
+            GameObject puckObj = GameObject.Find("hockey_puck");
+            if (puckObj != null)
+            {
+                puckTransform = puckObj.transform;
+                puckRigidbody = puckObj.GetComponent<Rigidbody>();
+            }
+            else
+            {
+                this.enabled = false;
+                return;
+            }
         }
 
         if (timerCanvas != null) timerCanvas.SetActive(false);
@@ -155,6 +172,98 @@ public class PlayerPuckHandler : MonoBehaviour
         int n = Mathf.Max(1, velocityAverageFrames);
         leftVelHistory = new Vector3[n];
         rightVelHistory = new Vector3[n];
+
+        // Ensure collision helper components exist on stick tips and hitboxes so gameplay interactions run
+        SetupCollisionHelpers();
+        // Add a PuckCollisionLogger to help debug collisions between stick and puck
+        if (puckObject != null && puckObject.GetComponent<PuckCollisionLogger>() == null)
+        {
+            puckObject.AddComponent<PuckCollisionLogger>();
+        }
+    }
+
+    private void SetupCollisionHelpers()
+    {
+        if (playerMovement == null)
+        {
+        }
+        // Left stick tip
+        if (playerMovement != null && playerMovement.leftStickEnd != null)
+        {
+            Transform leftTransform = playerMovement.leftStickEnd;
+            var leftColliders = leftTransform.GetComponentsInChildren<Collider>(true);
+            
+
+            foreach (var collider in leftColliders)
+            {
+                var go = collider.gameObject;
+                    if (go.GetComponent<StickTipCollision>() == null)
+                    {
+                        go.AddComponent<StickTipCollision>();
+                    }
+            }
+        }
+        else
+        {
+        }
+
+        // Right stick tip (with override support)
+        Transform rTip = stickTipOverride != null ? stickTipOverride : (playerMovement != null ? playerMovement.rightStickEnd : null);
+        if (rTip != null)
+        {
+            Transform rightTransform = rTip;
+            var rightColliders = rightTransform.GetComponentsInChildren<Collider>(true);
+            
+
+            foreach (var collider in rightColliders)
+            {
+                var go = collider.gameObject;
+                    if (go.GetComponent<StickTipCollision>() == null)
+                    {
+                        go.AddComponent<StickTipCollision>();
+                    }
+            }
+        }
+        else
+        {
+        }
+
+        // Shot hitboxes
+        if (shotHitboxes != null)
+        {
+            foreach (var go in shotHitboxes)
+            {
+                if (go == null) continue;
+                var col = go.GetComponent<Collider>();
+                
+                // Attach ShotHitbox to each collider under the hitbox GameObject
+                var colliders = go.GetComponentsInChildren<Collider>(true);
+                    
+                foreach (var c in colliders)
+                {
+                    var goC = c.gameObject;
+                    if (goC.GetComponent<ShotHitbox>() == null)
+                    {
+                        goC.AddComponent<ShotHitbox>();
+                    }
+                }
+            }
+        }
+    }
+
+    // Helper: check if a given Rigidbody is the puck registered with this handler
+    public bool IsRegisteredPuck(Rigidbody rb)
+    {
+        return rb != null && rb == puckRigidbody;
+    }
+
+    // Programmatic setter for runtime or dynamic puck assignment
+    public void SetPuck(GameObject go)
+    {
+        if (go == null) return;
+        puckObject = go;
+        puckTransform = puckObject.transform;
+        puckRigidbody = puckObject.GetComponent<Rigidbody>();
     }
 
     void FixedUpdate()
@@ -231,7 +340,7 @@ public class PlayerPuckHandler : MonoBehaviour
         }
 
         // Soft possession when near player: increase drag and slow puck but keep it hittable
-        if (puckRigidbody != null && !puckPossessed && puckReleaseCooldown <= 0f)
+        if (puckRigidbody != null && !puckPossessed && puckReleaseCooldown <= 0f && possessionCooldownTimer <= 0f)
         {
             float dist = Vector3.Distance(transform.position, puckTransform.position);
             if (dist <= catchRange)
@@ -281,7 +390,6 @@ public class PlayerPuckHandler : MonoBehaviour
 
     private void OnLeftSwitch(InputAction.CallbackContext ctx)
     {
-        Debug.Log("PlayerPuckHandler: Left switch pressed", this);
         currentSide = PossessionSide.Left;
         possessionOffset = leftPossessionOffset;
 
@@ -297,7 +405,6 @@ public class PlayerPuckHandler : MonoBehaviour
 
     private void OnRightSwitch(InputAction.CallbackContext ctx)
     {
-        Debug.Log("PlayerPuckHandler: Right switch pressed", this);
         currentSide = PossessionSide.Right;
         possessionOffset = rightPossessionOffset;
 
@@ -317,6 +424,7 @@ public class PlayerPuckHandler : MonoBehaviour
 
         if (puckReleaseCooldown > 0f) return;
 
+
         // check left stick
         if (leftStickTip != null && Vector3.Distance(leftStickTip.position, puckTransform.position) <= catchRange)
         {
@@ -335,16 +443,8 @@ public class PlayerPuckHandler : MonoBehaviour
     // Called by stick-tip collision or input-based hit. Unfreeze if necessary and apply velocity.
     public void HitPuck(Vector3 stickVelocity)
     {
-        if (puckRigidbody == null || puckTransform == null) return;
 
-        // If puck was possessed, restore original damping
-        if (puckPossessed)
-        {
-            puckRigidbody.linearDamping = originalLinearDamping;
-            puckRigidbody.angularDamping = originalAngularDamping;
-            puckPossessed = false;
-            hasPuck = false;
-        }
+        if (puckRigidbody == null || puckTransform == null) return;
 
         // If the passed stickVelocity is too small, try to use averaged velocities as a fallback
         if (stickVelocity.magnitude < minHitSpeed)
@@ -370,18 +470,78 @@ public class PlayerPuckHandler : MonoBehaviour
                 stickVelocity = avgR;
         }
 
-        // If still below threshold, ignore the hit
+        // If still below threshold, ignore the hit completely.
         if (stickVelocity.magnitude < minHitSpeed)
         {
             return;
         }
 
-        // Apply hit velocity scaled by hitForceMultiplier
-        Vector3 hitVel = stickVelocity * hitForceMultiplier;
-        puckRigidbody.linearVelocity = hitVel;
-        puckRigidbody.angularVelocity = Vector3.Cross(Vector3.up, stickVelocity) * 0.1f;
+        // If we get here, the hit is valid. Now, release possession and apply force.
+        if (puckPossessed)
+        {
+            puckRigidbody.linearDamping = originalLinearDamping;
+            puckRigidbody.angularDamping = originalAngularDamping;
+            puckPossessed = false;
+            hasPuck = false;
+        }
 
+        // Apply hit velocity scaled by shotForce and hitForceMultiplier
+        float appliedMultiplier = shotForce * hitForceMultiplier;
+        Vector3 hitVel = stickVelocity * appliedMultiplier;
+        puckRigidbody.linearVelocity = hitVel;
+
+        // If the measured stick velocity is tiny or the calculated hitVel magnitude is very low, use a minimum fallback
+        
+        
+        puckRigidbody.angularVelocity = Vector3.Cross(Vector3.up, stickVelocity) * 0.1f * appliedMultiplier;
+        
         puckReleaseCooldown = shotCooldown;
+        // After a hit, block re-possession for the configured possessionCooldown as well
+        possessionCooldownTimer = Mathf.Max(possessionCooldownTimer, Mathf.Max(possessionCooldown, shotCooldown));
+    }
+
+    // Centralized entry point for colliders (stick tips / shot hitboxes) to report a collision
+    // rather than computing velocity locally. This makes collision-handling consistent with input-based shots.
+    public void HitPuckFromCollider(Transform colliderTransform)
+    {
+        if (puckRigidbody == null || puckTransform == null) return;
+
+        // Break possession and set cooldowns
+        BreakPossessionFromCollision();
+
+        Vector3 stickVelocity = Vector3.zero;
+
+        // Use known stick transforms when possible
+        if (leftStickTip != null && (colliderTransform == leftStickTip || colliderTransform.IsChildOf(leftStickTip)))
+        {
+            stickVelocity = lastLeftVelocity;
+        }
+        else if (rightStickTip != null && (colliderTransform == rightStickTip || colliderTransform.IsChildOf(rightStickTip)))
+        {
+            stickVelocity = lastRightVelocity;
+        }
+        else
+        {
+            // Fall back to the average velocities we already record
+            Vector3 avgL = Vector3.zero;
+            Vector3 avgR = Vector3.zero;
+            if (leftVelCount > 0)
+            {
+                for (int i = 0; i < leftVelCount; i++) avgL += leftVelHistory[i];
+                avgL /= Mathf.Max(1, leftVelCount);
+            }
+            if (rightVelCount > 0)
+            {
+                for (int i = 0; i < rightVelCount; i++) avgR += rightVelHistory[i];
+                avgR /= Mathf.Max(1, rightVelCount);
+            }
+            if (avgL.magnitude > avgR.magnitude && avgL.magnitude >= minHitSpeed)
+                stickVelocity = avgL;
+            else if (avgR.magnitude >= minHitSpeed)
+                stickVelocity = avgR;
+        }
+
+        HitPuck(stickVelocity);
     }
 
     private void ReleasePossession()
@@ -393,6 +553,26 @@ public class PlayerPuckHandler : MonoBehaviour
         puckPossessed = false;
         hasPuck = false;
         possessionCooldownTimer = possessionCooldown;
+    }
+
+    // Called by stick collision detectors to break possession and set a cooldown
+    public void BreakPossessionFromCollision(float cooldownOverride = -1f)
+    {
+        if (puckRigidbody == null) return;
+
+        if (puckPossessed)
+        {
+            // restore damping
+            puckRigidbody.linearDamping = originalLinearDamping;
+            puckRigidbody.angularDamping = originalAngularDamping;
+            puckPossessed = false;
+            hasPuck = false;
+        }
+
+        float cooldown = cooldownOverride > 0f ? cooldownOverride : stickTouchPossessionCooldown;
+        
+        possessionCooldownTimer = Mathf.Max(possessionCooldownTimer, cooldown);
+        puckReleaseCooldown = Mathf.Max(puckReleaseCooldown, cooldown);
     }
 
     void OnDrawGizmosSelected()

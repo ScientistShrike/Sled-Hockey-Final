@@ -12,4 +12,7 @@ public static class GameSession
 
     // A flag indicating the game has reached its end state (win/lose/draw).
     public static bool IsGameOver = false;
+
+    // A flag to track if the tutorial has been shown in this session.
+    public static bool TutorialHasBeenShown = false;
 }

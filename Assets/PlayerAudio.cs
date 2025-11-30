@@ -46,8 +46,6 @@ public class PlayerAudio : MonoBehaviour
     private void Awake()
     {
         animController = GetComponentInChildren<AnimationController>();
-        if (cheerSoundObject == null) Debug.LogWarning($"[PlayerAudio] Awake: cheerSoundObject not assigned on '{gameObject.name}'. Will fallback to SoundEffects.Instance if available.");
-        if (sadSoundObject == null) Debug.LogWarning($"[PlayerAudio] Awake: sadSoundObject not assigned on '{gameObject.name}'. Will fallback to SoundEffects.Instance if available.");
     }
 
     private IEnumerator PlayAndStop(AudioSource source, float duration, bool loop = false)
@@ -83,12 +81,12 @@ public class PlayerAudio : MonoBehaviour
         {
             float dur = duration;
             if (dur <= 0f && animController != null) dur = animController.victoryDuration;
-            Debug.Log($"[PlayerAudio] PlayCheerSound falling back to SoundEffects.Instance for duration={dur}");
+            
             SoundEffects.Instance.PlayCheerSound(dur);
             return;
         }
 
-        Debug.LogWarning($"[PlayerAudio] PlayCheerSound: No cheerSound configured and SoundEffects.Instance not present on '{gameObject.name}'.");
+        
     }
 
     public void PlaySadSound(float duration = -1f)
@@ -123,12 +121,12 @@ public class PlayerAudio : MonoBehaviour
         {
             float dur = duration;
             if (dur <= 0f && animController != null) dur = animController.lossDuration;
-            Debug.Log($"[PlayerAudio] PlaySadSound falling back to SoundEffects.Instance for duration={dur}");
+            
             SoundEffects.Instance.PlaySadSound(dur);
             return;
         }
 
-        Debug.LogWarning($"[PlayerAudio] PlaySadSound: No sadSound, tiredSound, or SoundEffects.Instance present on '{gameObject.name}'.");
+        
     }
 
     public void PlayHitSound(float duration = -1f)

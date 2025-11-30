@@ -54,6 +54,7 @@
     <Compile Include="Assets\UIRayActivator.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\Rotator.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\XRKnob.cs" />
+    <Compile Include="Assets\PuckSkinManager.cs" />
     <Compile Include="Assets\BotAi\EnemyAiTutorial.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\BooleanToggleVisualsController.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\RayAttachModifier.cs" />
@@ -66,6 +67,8 @@
     <Compile Include="Assets\PauseManager.cs" />
     <Compile Include="Assets\Goal Logic\PlayerGoalScore.cs" />
     <Compile Include="Assets\RandomStuffThatsNotMine\UIAudio.cs" />
+    <Compile Include="Assets\PuckCollisionLogger.cs" />
+    <Compile Include="Assets\NewTutorialPanelController.cs" />
     <Compile Include="Assets\StickTipCollision.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\BezierCurve.cs" />
     <Compile Include="Assets\MenuScripts\MainMenu.cs" />
@@ -75,6 +78,7 @@
     <Compile Include="Assets\RandomStuffThatsNotMine\GameStartMenu.cs" />
     <Compile Include="Assets\MenuScripts\JoystickMenuNavigation.cs" />
     <Compile Include="Assets\Animations\AnimationController.cs" />
+    <Compile Include="Assets\ShotHitbox.cs" />
     <Compile Include="Assets\LockerRoom\Saves\Fly.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\DestroyObject.cs" />
     <Compile Include="Assets\VRTemplateAssets\Scripts\VideoTimeScrubControl.cs" />

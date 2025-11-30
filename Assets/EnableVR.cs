@@ -13,7 +13,6 @@ public class EnableVR : MonoBehaviour
         var settings = XRGeneralSettings.Instance;
         if (settings == null)
         {
-            Debug.LogError("XRGeneralSettings is null.");
             return;
         }
         settings.InitManagerOnStart = true;

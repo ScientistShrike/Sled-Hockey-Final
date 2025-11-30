@@ -23,14 +23,10 @@ public class FaceCamera : MonoBehaviour
     void Awake()
     {
         // Find the target camera if not already assigned.
-        if (targetCamera == null)
-        {
-            targetCamera = Camera.main;
             if (targetCamera == null)
             {
-                Debug.LogError("FaceCamera: No target camera assigned and Camera.main is not found!", this);
+                targetCamera = Camera.main;
             }
-        }
     }
 
     void OnEnable()
@@ -45,7 +41,6 @@ public class FaceCamera : MonoBehaviour
     {
         if (targetCamera == null)
         {
-            Debug.LogWarning("FaceCamera: Target camera is not set. Cannot position the object.", this);
             return;
         }
 

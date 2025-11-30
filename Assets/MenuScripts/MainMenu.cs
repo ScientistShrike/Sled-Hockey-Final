@@ -20,6 +20,11 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    public void Tutorial()
+    {
+        SceneManager.LoadScene(2);
+    }
+
     public void OpenOptions()
     {
         OptionsManager.OpenOptionsFromMain(mainMenuPanel, optionsMenuPanel);

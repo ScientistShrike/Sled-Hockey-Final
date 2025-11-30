@@ -15,11 +15,9 @@ public class PlayerGroundSpawner : MonoBehaviour
         {
             Vector3 spawnPosition = hit.point + Vector3.up * spawnHeightAboveGround;
             transform.position = spawnPosition;
-            Debug.Log("Player spawned at ground level.");
         }
         else
         {
-            Debug.LogWarning("Ground not found below spawn point. Please check ground layer and position.");
         }
     }
 }

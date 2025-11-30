@@ -38,7 +38,6 @@ public class PlayerSingleton : MonoBehaviour
     {
         if (mainCamera == null)
         {
-            Debug.LogError("Main Camera is not assigned on PlayerSingleton!", this);
             transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
             return;
         }

@@ -79,7 +79,6 @@ namespace Unity.VRTemplate
                 }
                 else
                 {
-                    Debug.Log($"User has permission for: {permission.m_PermissionId}", this);
                 }
                 m_CurrentPermissionIdx++;
             }
@@ -104,7 +103,6 @@ namespace Unity.VRTemplate
             permission.m_ResponseReceived = true;
             m_CurrentPermissionIdx++;
 
-            Debug.Log($"User granted permission for: {permissionStr}", this);
             permission.m_PermissionGranted.Invoke(permissionStr);
         }
 
@@ -115,7 +113,6 @@ namespace Unity.VRTemplate
             permission.m_ResponseReceived = true;
             m_CurrentPermissionIdx++;
 
-            Debug.LogWarning($"User denied permission for: {permissionStr}", this);
             permission.m_PermissionDenied.Invoke(permissionStr);
         }
     }

@@ -13,11 +13,9 @@ public class AnimationController : MonoBehaviour
         animator = GetComponent<Animator>();
         if (animator == null)
         {
-            Debug.LogError("Animator not found on " + gameObject.name);
         }
         else
         {
-            Debug.Log("Animator found on " + animator.gameObject.name);
         }
     }
             // Public durations so other systems can synchronize audio playback to animation lengths.
@@ -93,8 +91,6 @@ public class AnimationController : MonoBehaviour
         var enemyAI = GetComponentInParent<EnemyAiTutorial>();
         if (enemyAI != null)
         {
-            Debug.Log($"[AnimationController] Found EnemyAiTutorial on '{enemyAI.gameObject.name}', playing cheer for '{enemyAI.gameObject.name}'");
-            // Pass the animation duration so audio syncs with the animation
             enemyAI.PlayCheerSound(victoryDuration);
             return;
         }
@@ -102,7 +98,6 @@ public class AnimationController : MonoBehaviour
         var playerAudio = GetComponentInParent<PlayerAudio>();
         if (playerAudio != null)
         {
-            Debug.Log($"[AnimationController] Found PlayerAudio on '{playerAudio.gameObject.name}', playing cheer for player");
             playerAudio.PlayCheerSound(victoryDuration);
             return;
         }
@@ -118,8 +113,6 @@ public class AnimationController : MonoBehaviour
         var enemyAI = GetComponentInParent<EnemyAiTutorial>();
         if (enemyAI != null)
         {
-            Debug.Log($"[AnimationController] Found EnemyAiTutorial on '{enemyAI.gameObject.name}', playing sad for '{enemyAI.gameObject.name}'");
-            // Pass the animation duration so audio syncs with the animation
             enemyAI.PlaySadSound(lossDuration);
             return;
         }
@@ -127,7 +120,6 @@ public class AnimationController : MonoBehaviour
         var playerAudio = GetComponentInParent<PlayerAudio>();
         if (playerAudio != null)
         {
-            Debug.Log($"[AnimationController] Found PlayerAudio on '{playerAudio.gameObject.name}', playing sad for player");
             playerAudio.PlaySadSound(lossDuration);
             return;
         }

@@ -28,12 +28,11 @@ public class PauseAndOptionsMenu : MonoBehaviour
         isPaused = true;
         if (nearFarInteractor != null)
             nearFarInteractor.SetActive(true);
-        Debug.Log("PauseAndOptionsMenu: Pause menu opened and near-far interactor shown.");
     }
 
     public void ClosePauseMenu()
     {
-        Debug.Log("[RESUME] ClosePauseMenu() called - isPaused was: " + isPaused);
+        
         pauseMenu.SetActive(false);
         optionsMenu.SetActive(false);
         Time.timeScale = 1f;  // unfreeze
@@ -41,8 +40,7 @@ public class PauseAndOptionsMenu : MonoBehaviour
         if (nearFarInteractor != null)
             nearFarInteractor.SetActive(false);
         
-        Debug.Log("[RESUME] TimeScale set to: " + Time.timeScale);
-        Debug.Log("[RESUME] Pause menu active: " + pauseMenu.activeSelf);
+        
         
         // Safety: Re-enable player movement if it was disabled
         try
@@ -51,32 +49,31 @@ public class PauseAndOptionsMenu : MonoBehaviour
             if (puckHandler != null && !puckHandler.hasPuck)
             {
                 XRStickMovement movement = puckHandler.playerMovement;
-                if (movement != null && !movement.enabled)
-                {
-                    movement.enabled = true;
-                    Debug.Log("PauseAndOptionsMenu: Re-enabled XRStickMovement on close");
-                }
+                    if (movement != null && !movement.enabled)
+                    {
+                        movement.enabled = true;
+                    }
             }
         }
         catch
         {
             // Fallback if FindFirstObjectByType is not available in this Unity version
-            Debug.LogWarning("Could not re-enable movement after pause");
+            
         }
         
-        Debug.Log("PauseAndOptionsMenu: Pause menu closed and game resumed");
+        
     }
 
     public void OpenOptionsMenu()
     {
         OptionsManager.OpenOptionsFromPause(pauseMenu, optionsMenu);
-        Debug.Log("PauseAndOptionsMenu: Options menu opened via OptionsManager");
+        
     }
 
     public void BackToPause()
     {
         OptionsManager.BackToPauseFromOptions(pauseMenu, optionsMenu);
-        Debug.Log("PauseAndOptionsMenu: Returned to pause menu via OptionsManager");
+        
     }
     
     public bool IsPaused()
@@ -86,14 +83,14 @@ public class PauseAndOptionsMenu : MonoBehaviour
 
     public void ResumeGameButton()
     {
-        Debug.Log("PauseAndOptionsMenu.ResumeGameButton() called");
+        
         ClosePauseMenu();
-        Debug.Log("PauseAndOptionsMenu: Resume button pressed");
+        
     }
 
     public void Resume()
     {
-        Debug.Log("PauseAndOptionsMenu.Resume() called");
+        
         ClosePauseMenu();
     }
 }

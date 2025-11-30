@@ -19,11 +19,9 @@ public class SnapToGround : MonoBehaviour
         if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, rayHeightOffset * 2f, groundLayer))
         {
             transform.position = hit.point;
-            Debug.Log("Player snapped to ground at: " + hit.point);
         }
         else
         {
-            Debug.LogWarning("No ground found below. Check ground layer and position.");
         }
     }
 }

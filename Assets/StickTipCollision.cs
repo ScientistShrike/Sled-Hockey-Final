@@ -33,14 +33,21 @@ public class StickTipCollision : MonoBehaviour
     {
         if (col == null) return;
 
-        // Accept either exact name or a component check for Rigidbody
-        if (col.attachedRigidbody != null && col.attachedRigidbody.gameObject.name == "hockey_puck")
+        // Only react if this is the registered puck object
+        if (col.attachedRigidbody != null && PlayerPuckHandler.Instance != null && PlayerPuckHandler.Instance.IsRegisteredPuck(col.attachedRigidbody))
         {
             if (PlayerPuckHandler.Instance != null)
             {
-                float dt = Mathf.Max(0.0001f, Time.deltaTime);
-                Vector3 velocity = (transform.position - prevPos) / dt;
-                PlayerPuckHandler.Instance.HitPuck(velocity);
+                    // Use PlayerPuckHandler's centralized collision handling so velocity and force logic remains consistent
+                    PlayerPuckHandler.Instance.HitPuckFromCollider(transform);
+            }
+        }
+        else
+        {
+            // helpful debug - log unexpected collisions with other objects
+            if (col.attachedRigidbody != null)
+            {
+                //Debug.Log("StickTipCollision: collided with non-puck " + col.attachedRigidbody.gameObject.name, this);
             }
         }
     }

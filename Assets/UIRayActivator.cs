@@ -9,7 +9,6 @@ public class UIRayActivator : MonoBehaviour
 {
     void Awake()
     {
-        Debug.LogWarning("UIRayActivator is deprecated and present as a stub. Remove this component if you want it deleted.");
     }
 
     /// <summary>
@@ -19,7 +18,6 @@ public class UIRayActivator : MonoBehaviour
     /// </summary>
     public void SetInteractorsActive(bool active)
     {
-        Debug.Log("UIRayActivator.SetInteractorsActive called (deprecated stub). active=" + active);
         // Intentionally left blank — menu scripts now control interactors.
     }
 }

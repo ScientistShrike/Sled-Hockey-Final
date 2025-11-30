@@ -11,7 +11,11 @@ public static class OptionsManager
         if (optionsPanel != null)
         {
             SettingsMenu settings = optionsPanel.GetComponentInChildren<SettingsMenu>(true);
-            if (settings != null) settings.Initialize();
+            if (settings != null)
+            {
+                settings.Initialize();
+                Debug.Log($"OptionsManager: Initialized SettingsMenu from panel '{optionsPanel.name}'. DuckPuckToggle set={(settings.duckPuckToggle != null)}");
+            }
         }
     }
 
@@ -31,7 +35,11 @@ public static class OptionsManager
         if (optionsPanel != null)
         {
             SettingsMenu settings = optionsPanel.GetComponentInChildren<SettingsMenu>(true);
-            if (settings != null) settings.Initialize();
+            if (settings != null)
+            {
+                settings.Initialize();
+                Debug.Log($"OptionsManager: Initialized SettingsMenu from panel '{optionsPanel.name}' (pause). DuckPuckToggle set={(settings.duckPuckToggle != null)}");
+            }
         }
     }
 

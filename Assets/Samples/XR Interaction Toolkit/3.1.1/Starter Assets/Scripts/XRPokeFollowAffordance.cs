@@ -154,7 +154,6 @@ namespace UnityEngine.XR.Interaction.Toolkit.Samples.StarterAssets
             else
             {
                 enabled = false;
-                Debug.LogWarning($"Missing Poke Follow Transform assignment on {this}. Disabling component.", this);
             }
         }
 

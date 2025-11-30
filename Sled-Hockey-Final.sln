@@ -19,6 +19,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NavMeshComponentsTestsEditm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NavMeshComponentsExamplesEditor", "NavMeshComponentsExamplesEditor.csproj", "{2E1CAC9E-FEC0-DD57-ED41-92D82F62B274}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "Assembly-CSharp-Editor.csproj", "{E4CF3EBB-7A81-524A-65B2-61C32833635D}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NavMeshComponentsEditor", "NavMeshComponentsEditor.csproj", "{CD74BDD7-04D2-8A48-6890-E7A208801CDC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Unity.XR.Hands.Samples.VisualizerSample", "Unity.XR.Hands.Samples.VisualizerSample.csproj", "{34C62288-7181-7D2A-BC5A-A5E8A543EA1A}"
@@ -67,6 +69,10 @@ Global
 		{2E1CAC9E-FEC0-DD57-ED41-92D82F62B274}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2E1CAC9E-FEC0-DD57-ED41-92D82F62B274}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2E1CAC9E-FEC0-DD57-ED41-92D82F62B274}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E4CF3EBB-7A81-524A-65B2-61C32833635D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4CF3EBB-7A81-524A-65B2-61C32833635D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E4CF3EBB-7A81-524A-65B2-61C32833635D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4CF3EBB-7A81-524A-65B2-61C32833635D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CD74BDD7-04D2-8A48-6890-E7A208801CDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CD74BDD7-04D2-8A48-6890-E7A208801CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD74BDD7-04D2-8A48-6890-E7A208801CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU

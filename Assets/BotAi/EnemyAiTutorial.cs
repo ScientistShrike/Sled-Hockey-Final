@@ -147,12 +147,11 @@ public class EnemyAiTutorial : MonoBehaviour
             puckObj = GameObject.FindWithTag("Puck");
             if (puckObj == null) puckObj = GameObject.FindWithTag("Player");
         }
-        if (puckObj != null) player = puckObj.transform; else Debug.LogError($"[EnemyAiTutorial] Awake: Puck not found (tried 'hockey_puck','hockey_pck',tag:'Puck','Player'). AI relying on puck will be disabled until puck appears.");
+        if (puckObj != null) player = puckObj.transform;
         
         agent = GetComponent<NavMeshAgent>();
         if (agent == null)
         {
-            Debug.LogError($"[EnemyAiTutorial] Awake: NavMeshAgent not found on {gameObject.name}; disabling AI.");
             this.enabled = false;
             return;
         }
@@ -177,13 +176,12 @@ public class EnemyAiTutorial : MonoBehaviour
         if (animController == null) animController = GetComponentInChildren<AnimationController>();
         if (animController == null)
         {
-            Debug.LogWarning($"[EnemyAiTutorial] Awake: AnimationController not found in children for {gameObject.name}. Animations (tired, hits, cheer) will not play unless an AnimationController is attached as child.");
         }
         // Log missing per-bot audio objects so the developer can assign them in the prefab.
-        if (hitSoundObject == null) Debug.LogWarning($"[EnemyAiTutorial] Awake: hitSoundObject not configured on '{gameObject.name}'.");
-        if (tiredSoundObject == null) Debug.LogWarning($"[EnemyAiTutorial] Awake: tiredSoundObject not configured on '{gameObject.name}'.");
-        if (sadSoundObject == null) Debug.LogWarning($"[EnemyAiTutorial] Awake: sadSoundObject not configured on '{gameObject.name}'. Will attempt fallback to global SoundEffects if available.");
-        if (cheerSoundObject == null) Debug.LogWarning($"[EnemyAiTutorial] Awake: cheerSoundObject not configured on '{gameObject.name}'. Will attempt fallback to global SoundEffects if available.");
+        if (hitSoundObject == null) ;
+        if (tiredSoundObject == null) ;
+        if (sadSoundObject == null) ;
+        if (cheerSoundObject == null) ;
     }
 
     private void OnEnable() => allBots.Add(this);
@@ -226,7 +224,6 @@ public class EnemyAiTutorial : MonoBehaviour
         // If we couldn't find a puck, avoid calling into it and keep patrolling.
         if (player == null)
         {
-            Debug.LogWarning($"[EnemyAiTutorial] Update: No puck Transform found for {gameObject.name}; patrolling without puck.");
             hasPuck = false;
             Patroling();
             return;
@@ -276,7 +273,7 @@ public class EnemyAiTutorial : MonoBehaviour
             currentState = AiState.Resting;
             staminaTimer = restTime;
             agent.isStopped = true;
-            Debug.Log($"[EnemyAiTutorial] {gameObject.name} is now Resting; agent.isStopped={agent.isStopped}");
+            
             StartTiredSound();
             // Ensure animator transitions to resting/tired state by toggling tired only
             if (animController != null)
@@ -291,7 +288,7 @@ public class EnemyAiTutorial : MonoBehaviour
             currentState = AiState.Moving;
             staminaTimer = Random.Range(minMoveTime, maxMoveTime);
             agent.isStopped = false;
-            Debug.Log($"[EnemyAiTutorial] {gameObject.name} is now Moving; agent.isStopped={agent.isStopped}");
+            
             StopTiredSound();
             if (animController != null)
             {
@@ -301,7 +298,7 @@ public class EnemyAiTutorial : MonoBehaviour
 
         if (prev != currentState)
         {
-            Debug.Log($"[EnemyAiTutorial] {gameObject.name} state change {prev} -> {currentState} (staminaTimer={staminaTimer})");
+            
             if (animController != null)
                 animController.SetTired(currentState == AiState.Resting);
         }
@@ -309,7 +306,7 @@ public class EnemyAiTutorial : MonoBehaviour
 
     private void HandlePuckPossession()
     {
-        if (player == null) { Debug.LogWarning($"[EnemyAiTutorial] HandlePuckPossession: player (puck) is null for {gameObject.name}. Cancelling possession handling."); return; }
+        if (player == null) { return; }
         agent.SetDestination(transform.position);
 
         if (puckStopTimer <= 0f)
@@ -448,7 +445,7 @@ public class EnemyAiTutorial : MonoBehaviour
     private void TryShootAtGoal()
     {
         if (alreadyAttacked) return;
-        if (player == null) { Debug.LogWarning($"[EnemyAiTutorial] TryShootAtGoal: player (puck) is null for {gameObject.name}; cannot shoot."); return; }
+        if (player == null) { return; }
         Rigidbody puckRb = player.GetComponent<Rigidbody>();
         if (puckRb == null) return;
 
@@ -469,7 +466,7 @@ public class EnemyAiTutorial : MonoBehaviour
 
     private void PassPuckTo(Transform target)
     {
-        if (player == null) { Debug.LogWarning($"[EnemyAiTutorial] PassPuckTo: player (puck) is null for {gameObject.name}; cannot pass."); return; }
+        if (player == null) { return; }
         Rigidbody puckRb = player.GetComponent<Rigidbody>();
         if (puckRb == null) return;
 
@@ -542,7 +539,7 @@ public class EnemyAiTutorial : MonoBehaviour
             if (playingAudioRoutine != null) StopCoroutine(playingAudioRoutine);
             float dur = duration;
             if (dur <= 0f && animController != null) dur = animController.victoryDuration;
-            Debug.Log($"[EnemyAiTutorial] {gameObject.name} PlayCheerSound using local AudioSource for duration={dur}");
+            
             playingAudioRoutine = StartCoroutine(PlayAndStop(cheerSrc, dur, loop: false));
             return;
         }
@@ -552,12 +549,12 @@ public class EnemyAiTutorial : MonoBehaviour
         {
             float dur = duration;
             if (dur <= 0f && animController != null) dur = animController.victoryDuration;
-            Debug.Log($"[EnemyAiTutorial] {gameObject.name} PlayCheerSound falling back to SoundEffects.Instance for duration={dur}");
+            
             global::SoundEffects.Instance.PlayCheerSound(dur);
             return;
         }
 
-        Debug.LogWarning($"[EnemyAiTutorial] PlayCheerSound: No cheerSound configured and global SoundEffects.Instance not present on '{gameObject.name}'.");
+        
     }
 
     public void StartTiredSound()
@@ -567,7 +564,7 @@ public class EnemyAiTutorial : MonoBehaviour
         AudioSource tiredSrc = ResolveAudioSource(tiredSoundObject) ?? audioSource;
         if (tiredSrc != null && !tiredSrc.isPlaying)
         {
-            Debug.Log($"[EnemyAiTutorial] {gameObject.name} StartTiredSound: Playing tired sound (local AudioSource)");
+            
             tiredSrc.loop = true;
             tiredSrc.Play();
         }
@@ -578,7 +575,7 @@ public class EnemyAiTutorial : MonoBehaviour
         AudioSource tiredSrc2 = ResolveAudioSource(tiredSoundObject) ?? audioSource;
         if (tiredSrc2 != null && tiredSrc2.isPlaying)
         {
-            Debug.Log($"[EnemyAiTutorial] {gameObject.name} StopTiredSound: Stopped tired sound (local AudioSource)");
+            
             tiredSrc2.loop = false;
             tiredSrc2.Stop();
         }
@@ -595,7 +592,7 @@ public class EnemyAiTutorial : MonoBehaviour
             if (playingAudioRoutine != null) StopCoroutine(playingAudioRoutine);
             float dur = duration;
             if (dur <= 0f && animController != null) dur = animController.lossDuration;
-            Debug.Log($"[EnemyAiTutorial] {gameObject.name} PlaySadSound using local AudioSource for duration={dur}");
+            
             playingAudioRoutine = StartCoroutine(PlayAndStop(sadSrc, dur, loop: false));
             return;
         }
@@ -607,7 +604,7 @@ public class EnemyAiTutorial : MonoBehaviour
             if (playingAudioRoutine != null) StopCoroutine(playingAudioRoutine);
             float dur = duration;
             if (dur <= 0f && animController != null) dur = animController.lossDuration;
-            Debug.Log($"[EnemyAiTutorial] {gameObject.name} PlaySadSound falling back to local tired AudioSource for duration={dur}");
+            
             AudioSource fallbackTiredSrc = ResolveAudioSource(tiredSoundObject) ?? audioSource;
             playingAudioRoutine = StartCoroutine(PlayAndStop(fallbackTiredSrc, dur, loop: false));
             return;
@@ -618,12 +615,12 @@ public class EnemyAiTutorial : MonoBehaviour
         {
             float dur = duration;
             if (dur <= 0f && animController != null) dur = animController.lossDuration;
-            Debug.Log($"[EnemyAiTutorial] {gameObject.name} PlaySadSound falling back to SoundEffects.Instance for duration={dur}");
+            
             global::SoundEffects.Instance.PlaySadSound(dur);
             return;
         }
 
-        Debug.LogWarning($"[EnemyAiTutorial] PlaySadSound: No sadSound, tiredSound, or global SoundEffects instance configured on '{gameObject.name}'.");
+        
     }
 
     public void PlayHitSound(float duration = -1f)
@@ -635,7 +632,7 @@ public class EnemyAiTutorial : MonoBehaviour
         if (playingAudioRoutine != null) StopCoroutine(playingAudioRoutine);
         float dur = duration;
         if (dur <= 0f && animController != null) dur = animController.hitDuration;
-        Debug.Log($"[EnemyAiTutorial] {gameObject.name} PlayHitSound: Playing hit sound for duration={dur}");
+        
         playingAudioRoutine = StartCoroutine(PlayAndStop(hitSrc, dur, loop: false));
     }
 
@@ -645,7 +642,7 @@ public class EnemyAiTutorial : MonoBehaviour
         var src = audioObject.GetComponentInChildren<AudioSource>();
         if (src == null)
         {
-            Debug.LogWarning($"[EnemyAiTutorial] ResolveAudioSource: GameObject '{audioObject.name}' has no AudioSource component.");
+            
         }
         return src;
     }

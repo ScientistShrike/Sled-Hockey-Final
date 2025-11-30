@@ -22,7 +22,6 @@ public class SettingsSyncHelper : MonoBehaviour
         // If GameSettings exists, reload its settings to apply them to the new scene
         if (GameSettings.Instance != null)
         {
-            Debug.Log("[SettingsSyncHelper] Syncing settings for scene: " + scene.name);
             GameSettings.Instance.LoadSettings();
         }
     }

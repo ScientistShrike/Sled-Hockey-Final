@@ -40,7 +40,6 @@ public class JoystickMenuNavigation : MonoBehaviour
                 if (btn != null)
                 {
                     btn.onClick.Invoke();
-                    Debug.Log("Pressed: " + current.name);
                 }
             }
         }

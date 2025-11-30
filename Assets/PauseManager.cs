@@ -36,7 +36,6 @@ public class PauseManager : MonoBehaviour
 
         if (pauseMenu == null)
         {
-            Debug.LogError("Pause Menu is not assigned in the PauseManager.", this);
         }
 
         // Find PauseAndOptionsMenu if it exists
@@ -44,12 +43,10 @@ public class PauseManager : MonoBehaviour
 
         if (nearFarInteractor == null)
         {
-            Debug.LogWarning("PauseManager: Near-Far interactor GameObject is not assigned!");
         }
         else
         {
             nearFarInteractor.SetActive(false);
-            Debug.Log("PauseManager: Near-Far interactor GameObject disabled on Awake.");
         }
     }
 
@@ -57,7 +54,6 @@ public class PauseManager : MonoBehaviour
     {
         if (pauseAction == null)
         {
-            Debug.LogError("Pause Action Reference is not set on the PauseManager.", this);
             return;
         }
         
@@ -75,10 +71,13 @@ public class PauseManager : MonoBehaviour
 
     private void OnPausePerformed(InputAction.CallbackContext context)
     {
+        if (NewTutorialPanelController.isTutorialActive)
+        {
+            return;
+        }
         // Ignore pause input if the game is over (so Game Over UI is not toggled accidentally)
         if (GameSession.IsGameOver)
         {
-            Debug.Log("PauseManager: Ignoring pause input because game is over.");
             return;
         }
         // If PauseAndOptionsMenu is handling pause, delegate to it
@@ -98,14 +97,12 @@ public class PauseManager : MonoBehaviour
             if (nearFarInteractor != null)
             {
                 nearFarInteractor.SetActive(!isCurrentlyPaused);
-                Debug.Log("PauseManager: Interactor GameObject active state set to " + nearFarInteractor.activeSelf);
             }
-            Debug.Log("PauseManager: Delegated pause to PauseAndOptionsMenu");
         }
         else
         {
             // Fallback to regular toggle if PauseAndOptionsMenu doesn't exist
-            Debug.Log("PauseManager: PauseAndOptionsMenu not found, using fallback TogglePause");
+            
             TogglePause();
         }
     }
@@ -129,11 +126,10 @@ public class PauseManager : MonoBehaviour
         Time.timeScale = isPaused ? 0f : 1f;
 
         // Toggle the interactor
-        if (nearFarInteractor != null)
-        {
-            nearFarInteractor.SetActive(isPaused);
-            Debug.Log("PauseManager: Toggled interactor GameObject active state to " + nearFarInteractor.activeSelf);
-        }
+            if (nearFarInteractor != null)
+            {
+                nearFarInteractor.SetActive(isPaused);
+            }
     }
 
     /// <summary>
@@ -161,26 +157,24 @@ public class PauseManager : MonoBehaviour
         if (nearFarInteractor != null)
         {
             nearFarInteractor.SetActive(isPaused);
-            Debug.Log("PauseManager: SetPaused changed interactor active state to " + nearFarInteractor.activeSelf);
         }
     }
 
     public void ResumeGame()
     {
-        Debug.Log("PauseManager.ResumeGame() called");
+        
         
         // If PauseAndOptionsMenu exists, delegate to it
         if (pauseAndOptionsMenu != null)
         {
             pauseAndOptionsMenu.ClosePauseMenu();
-            Debug.Log("PauseManager: Delegated resume to PauseAndOptionsMenu");
+            
 
             // Also handle the interactor here when delegating
-            if (nearFarInteractor != null)
-            {
-                nearFarInteractor.SetActive(false);
-                Debug.Log("PauseManager: ResumeGame disabled interactor GameObject via delegation.");
-            }
+                if (nearFarInteractor != null)
+                {
+                    nearFarInteractor.SetActive(false);
+                }
             return;
         }
 
@@ -196,7 +190,7 @@ public class PauseManager : MonoBehaviour
         if (nearFarInteractor != null)
         {
             nearFarInteractor.SetActive(false);
-            Debug.Log("PauseManager: ResumeGame disabled interactor GameObject via fallback.");
+            
         }
 
         // Safety: Re-enable player movement in case it was disabled
@@ -209,14 +203,13 @@ public class PauseManager : MonoBehaviour
                 if (movement != null && !movement.enabled)
                 {
                     movement.enabled = true;
-                    Debug.Log("PauseManager: Re-enabled XRStickMovement on resume");
                 }
             }
         }
         catch
         {
             // Fallback if FindFirstObjectByType is not available in this Unity version
-            Debug.LogWarning("Could not re-enable movement after pause");
+            
         }
     }
 
@@ -229,7 +222,7 @@ public class PauseManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Settings Menu panel is not assigned in the Inspector.");
+            
         }
 
         // Hide the main pause menu when settings are shown, and vice-versa
@@ -241,7 +234,7 @@ public class PauseManager : MonoBehaviour
 
     public void QuitToMenu()
     {
-        Debug.Log("QuitToMenu called: Setting GameSession.IsInitialized to false.");
+        
 
         // Ensure the game is unpaused when we quit.
         Time.timeScale = 1f;

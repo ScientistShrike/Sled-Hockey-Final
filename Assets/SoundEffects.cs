@@ -32,11 +32,6 @@ public class SoundEffects : MonoBehaviour
             // Provide a clear warning that a duplicate component was added to a GameObject.
             // We will destroy the component instead of the GameObject to avoid deleting
             // AI actors that may have the component attached accidentally.
-            Debug.LogWarning($"Duplicate SoundEffects instance on GameObject '{gameObject.name}'. Removing component to preserve GameObject.");
-            if (GetComponent<UnityEngine.AI.NavMeshAgent>() != null)
-            {
-                Debug.LogWarning($"GameObject '{gameObject.name}' has both SoundEffects and a NavMeshAgent. Removing SoundEffects component to avoid destroying the bot GameObject.");
-            }
             Destroy(this);
             return;
         }

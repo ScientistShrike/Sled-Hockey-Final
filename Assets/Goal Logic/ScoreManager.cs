@@ -63,18 +63,17 @@ public class ScoreManager : MonoBehaviour
         // We need to reset all session values to their defaults.
         if (!GameSession.IsInitialized)
         {
-            Debug.Log("ScoreManager.Start(): New Game Detected. Resetting GameSession state.");
             GameSession.PlayerScore = 0;
             GameSession.BotScore = 0;
             // Use the inspector-assigned value instead of a hard-coded constant
             GameSession.TimeRemaining = timeRemaining; // Preserve inspector value
             GameSession.IsInitialized = true;
+            GameSession.TutorialHasBeenShown = false; // Reset tutorial flag for new game
         }
         else
         {
             // If the session IS initialized, it means we are reloading the scene after a goal.
             // The score and time should persist. We just need to reset player positions.
-            Debug.Log("ScoreManager.Start(): Mid-Game Reload Detected. Loading existing GameSession state.");
             if (PlayerSingleton.Instance != null && playerSpawnPoint != null) 
             {
                 PlayerSingleton.Instance.ResetToSpawnPoint(playerSpawnPoint);
@@ -285,6 +284,7 @@ public class ScoreManager : MonoBehaviour
         // Reset the session so the next game starts fresh.
         GameSession.IsInitialized = false;
         GameSession.IsGameOver = true;
+        GameSession.TutorialHasBeenShown = false; // Reset tutorial flag for new game
         
         GameObject panelToShow = null;
         switch(result)
@@ -324,7 +324,6 @@ public class ScoreManager : MonoBehaviour
             // If there is no EventSystem present, warn the developer.
             if (UnityEngine.EventSystems.EventSystem.current == null)
             {
-                Debug.LogWarning("ScoreManager.EndGame(): No EventSystem found in scene. UI interaction may not work.");
             }
 
         // Prefer using the PauseManager's pause logic so Game Over behaves like Pause.
@@ -358,7 +357,10 @@ public class ScoreManager : MonoBehaviour
         // Disable AI and NavMeshAgents for all bots
         if (EnemyAiTutorial.allBots != null)
         {
-            foreach (var botAI in EnemyAiTutorial.allBots)
+            // Create a copy to avoid InvalidOperationException if bots unregister themselves
+            // in OnDisable() during the iteration (disabling the script removes them).
+            var botsToFreeze = new List<EnemyAiTutorial>(EnemyAiTutorial.allBots);
+            foreach (var botAI in botsToFreeze)
             {
                 if (botAI == null) continue;
 
@@ -434,7 +436,9 @@ public class ScoreManager : MonoBehaviour
         // --- Animate All Bots Based on Their Team ---
         if (EnemyAiTutorial.allBots != null)
         {
-            foreach (var bot in EnemyAiTutorial.allBots)
+            // Copy list to avoid modification during iteration (e.g. disabling scripts removes bots)
+            var botsToAnimate = new List<EnemyAiTutorial>(EnemyAiTutorial.allBots);
+            foreach (var bot in botsToAnimate)
             {
                 if (bot == null) continue;
 
